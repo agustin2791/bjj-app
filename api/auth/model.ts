@@ -4,6 +4,7 @@ const bcrypt = require('bcrypt')
 const SALT_WORK_FACTOR = 10 
 
 export interface IUser {
+    id: number,
     username: string,
     email: string,
     password: string,

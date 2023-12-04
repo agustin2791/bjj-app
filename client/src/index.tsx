@@ -4,6 +4,7 @@ import {
   createBrowserRouter,
   RouterProvider
 } from 'react-router-dom'
+import { CssBaseline } from '@mui/material';
 import './index.css';
 import routes from './routes'
 import App from './App';
@@ -17,6 +18,7 @@ const root = ReactDOM.createRoot(
 
 root.render(
   <React.StrictMode>
+    <CssBaseline />
     <RouterProvider router={routes} />
   </React.StrictMode>
 );

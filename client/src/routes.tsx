@@ -1,6 +1,7 @@
 import App from "./App"
 import Registration
  from "./pages/auth/register";
+import Forum from './pages/forum/forum'
 import {
     createBrowserRouter,
     RouterProvider
@@ -14,6 +15,10 @@ const routes = createBrowserRouter([
     {
         path: '/register',
         element: <Registration />
+    },
+    {
+        path: '/posts',
+        element: <Forum />
     }
 ])
 
