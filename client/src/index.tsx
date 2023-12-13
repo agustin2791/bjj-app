@@ -9,7 +9,7 @@ import './index.css';
 import routes from './routes'
 import App from './App';
 import reportWebVitals from './reportWebVitals';
-  
+import './styles/main.scss'
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement

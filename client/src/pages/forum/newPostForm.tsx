@@ -14,6 +14,7 @@ const NewPost: FC<newPostForm> = ( {title, author, description, handleInputChang
     return (
         <form onSubmit={e => {submitPost(e)}}>
             <Stack spacing={2}>
+                <h3>New Post</h3>
                 <ListItem>
                     <TextField 
                         variant="outlined"

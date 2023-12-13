@@ -5,6 +5,7 @@ import cors from "cors";
 import {connect} from './mongodb';
 
 const auth = require('./api/auth/view')
+const forum = require('./api/forum/controller')
 
 dotenv.config();
 
@@ -17,7 +18,9 @@ app.get('/', (req: Request, res: Response) => {
 res.send('Hello World From the Typescript Server!')
 });
 
+// API Calls
 app.use('/auth', auth)
+app.use('/forum', forum)
 
 const port = process.env.PORT || 8000;
 

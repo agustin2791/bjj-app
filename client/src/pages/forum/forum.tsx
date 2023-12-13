@@ -1,27 +1,11 @@
 import { useState, ChangeEvent, FormEvent } from 'react';
-import Stack from '@mui/material/Stack';
-import Button from '@mui/material/Button';
+import { Stack, Button, Modal, Box} from '@mui/material'
 import NewPost from './newPostForm';
+import { newPost as postApi, getAllPosts } from '../../utils/forum-utils';
+import { ForumEntry, Comment } from '../../utils/types_interfaces';
+import PostList from './postList';
+import Post from './post';
 
-interface ForumEntry {
-    id: number,
-    title: string,
-    author: string,
-    reply: Array<Comment>,
-    agree: number,
-    disagree: number,
-    description: string
-}
-
-interface Comment {
-    id: number,
-    comment: string,
-    author: string,
-    agree: number,
-    disagree: number,
-    reply: [Comment],
-    comment_to_id: number
-}
 
 const defaultPostForm = {
     title: '',
@@ -29,29 +13,69 @@ const defaultPostForm = {
     description: ''
 }
 
+const blankEntry = (): ForumEntry => {
+    const replyArray = new Array<Comment>
+    return {
+        id: 0,
+        title: '',
+        author: '',
+        replies: replyArray,
+        agree: 0,
+        disagree: 0,
+        description: '',
+        created_at: new Date()
+    }
+}
+
+const modalStyle = {
+    position: 'absolute' as 'absolute',
+    top: '50%',
+    left: '50%',
+    transform: 'translate(-50%, -50%)',
+    width: '80%',
+    bgcolor: 'background.paper',
+    border: '2px solid #000',
+    boxShadow: 24,
+    p: 4,
+  };
+
+// const convertPostsToEntries: (posts: []) => ForumEntry[] | [] = function(posts) {
+//     console.log(posts)
+//     return posts.map(p => {
+//         return {...p}
+//     })
+// }
 const Forum = () => {
     const [forumList, setForumList] = useState<ForumEntry[] | []>([]);
-    const [focusEntry, setFocusEntry] = useState<ForumEntry | null>();
+    const [focusEntry, setFocusEntry] = useState<ForumEntry>(blankEntry);
     const [creatingNewEntry, setCreatingNewEntry] = useState(false);
     const [viewingEntry, setViewingEntry] = useState(false);
     const [newPost, setNewPost] = useState(defaultPostForm)
+    const [initForumCall, setInitForumCall] = useState(false)
 
+    
+    const getInitPosts = async () => {
+        let allPosts:ForumEntry[] = await getAllPosts(0, 10)
+
+        setForumList(allPosts)
+        setInitForumCall(true) 
+    }
 
     const postNewForumEntry = async (event: FormEvent<HTMLFormElement>) => {
         // have an api to add/create a post
         event.preventDefault()
         const reply_comments = new Array<Comment>
         const new_post:ForumEntry = {
-            id: forumList.length,
             title: newPost.title,
             author: newPost.author,
             description: newPost.description,
             agree: 0,
             disagree: 0,
-            reply: reply_comments
+            replies: reply_comments
         }
-
-        setForumList([...forumList, new_post])
+        
+        const post:ForumEntry = await postApi(new_post)
+        setForumList([...forumList, post])
         setNewPost(defaultPostForm)
         setCreatingNewEntry(false)
     }
@@ -67,34 +91,38 @@ const Forum = () => {
         setViewingEntry(true)
     }
 
+    const toggleViewingEntry = () => {
+        setViewingEntry(!viewingEntry)
+    }
+
     const toggleNewEntryPost = () => {
         setCreatingNewEntry(!creatingNewEntry)
     }
 
+    if (forumList.length <= 0 && !initForumCall) {
+        getInitPosts()
+    }
+
     return (
         <Stack sx={{margin: '20px auto', maxWidth: '700px'}}>
-            {forumList.length === 0 && <h1>No Posts</h1>}
-            {forumList.map((post, index) => {
-                return <div key={index}>
-                        <div className="post-list-title">{post.title}</div>
-                        <div className="post-list-vote">
-                            <button className="agree">Agree</button>
-                            <button className="disagree">Disagree</button>
-                        </div>
-                        <div className="view-post">
-                            <button onClick={() => {viewEntry(post.id)}} className="post-list-view-button">View Post</button>
-                        </div>
-                    </div>
-            })}
             <Button className="create-post-button" variant="contained" onClick={() => {toggleNewEntryPost()}}>Create A Post</Button>
-            {creatingNewEntry ? 
-                <NewPost 
-                title={newPost.title}
-                author={newPost.author}
-                description={newPost.description}
-                handleInputChange={updatePostForm}
-                submitPost={postNewForumEntry}  />
-            : <div></div>}
+             
+            <Modal
+                open={creatingNewEntry}
+                onClose={toggleNewEntryPost}
+                aria-labelledby="modal-modal-title">
+                <Box sx={modalStyle}>
+                    <NewPost 
+                        title={newPost.title}
+                        author={newPost.author}
+                        description={newPost.description}
+                        handleInputChange={updatePostForm}
+                        submitPost={postNewForumEntry}  />
+                </Box>
+            </Modal>
+            {forumList.length === 0 && <h1>No Posts</h1>}
+            <PostList posts={forumList} viewEntry={viewEntry} />
+            {focusEntry !== null && <Post entry={focusEntry} open={viewingEntry} closeModal={toggleViewingEntry} />}
         </Stack>
     )
 }
