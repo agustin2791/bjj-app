@@ -14,6 +14,7 @@ module.exports = app.post('/posts', async (req: Request, res: Response) => {
     const {start, end} = req.body
     try {
         const all_post_query = await Post.find().skip(start).limit(end).sort('-created_at')
+        console.log(all_post_query)
         return res.status(200).json(all_post_query)
     } catch (e) {
         console.log(e)

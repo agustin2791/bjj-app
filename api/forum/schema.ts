@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { IUser } from '../auth/model'
+import { IUser } from '../auth/schema'
 
 type IPost = {
     id: number,

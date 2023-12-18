@@ -3,8 +3,9 @@ import express, { Express, Request, Response } from "express";
 import path from "path";
 import cors from "cors";
 import {connect} from './mongodb';
+import { accessMiddleware } from "./middleware";
 
-const auth = require('./api/auth/view')
+const auth = require('./api/auth/controller')
 const forum = require('./api/forum/controller')
 
 dotenv.config();
@@ -20,7 +21,7 @@ res.send('Hello World From the Typescript Server!')
 
 // API Calls
 app.use('/auth', auth)
-app.use('/forum', forum)
+app.use('/forum', accessMiddleware, forum)
 
 const port = process.env.PORT || 8000;
 
