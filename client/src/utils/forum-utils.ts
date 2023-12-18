@@ -1,15 +1,17 @@
 import { ForumEntry, Comment } from './types_interfaces'
+import { AxiosResponse } from 'axios'
+import api from './../axios'
 export const getAllPosts = async <T>(
     start: number,
     end: number
 ) : Promise<T> => {
-    const res = await fetch('http://localhost:8000/forum/posts ', {
-        method: 'Post',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({start, end})
-    })
-
-    return await res.json()
+    const data = await api.post('http://localhost:8000/forum/posts ', {start, end})
+        .then((res) => {
+            return res.data
+        }).catch((e) => {
+            return []
+        })
+    return data
 }
 
 export const newPost = async <T>(post: ForumEntry) : Promise<T> => {

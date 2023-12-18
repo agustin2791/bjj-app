@@ -12,6 +12,10 @@ type User = {
   password: string
 }
 
+type LoginReturn = {
+  token: string,
+  user: User
+}
 const defaultFormFields = {
   username: '',
   password: ''
@@ -39,11 +43,12 @@ const App = () => {
 
       try {
         // make api call
-        const res: User = await getData(
+        const res: LoginReturn = await getData(
           'http://localhost:8000/auth/login', username, password
         )
-        setUser(res);
+        setUser(res.user);
         resetFormFields()
+        localStorage.setItem('accessToken', res.token)
       } catch (error) {
         alert('User Sign In failed')
       }

@@ -56,6 +56,7 @@ const Forum = () => {
     
     const getInitPosts = async () => {
         let allPosts:ForumEntry[] = await getAllPosts(0, 10)
+        console.log(allPosts)
 
         setForumList(allPosts)
         setInitForumCall(true) 
