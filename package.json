@@ -18,7 +18,8 @@
     "express": "^4.18.2",
     "express-mongoose": "^0.1.0",
     "jsonwebtoken": "^9.0.2",
-    "mongoose": "^8.0.2"
+    "mongoose": "^8.0.2",
+    "redux-persist": "^6.0.0"
   },
   "devDependencies": {
     "@types/cors": "^2.8.17",

@@ -1,29 +1,44 @@
 import { FC } from 'react';
-import { Button, Card, CardContent } from '@mui/material'
+import { Box, Button, ButtonGroup, Card, CardContent, Stack } from '@mui/material'
 import { ForumEntry } from '../../utils/types_interfaces';
+import { ThumbUp, ThumbDown } from '@mui/icons-material'
 
 type PostListProps = {
     posts: Array<ForumEntry>,
-    viewEntry: Function
+    viewEntry: Function,
+    vote: Function
 }
 
-const PostList: FC<PostListProps> = ({ posts, viewEntry }) => {
+const PostList: FC<PostListProps> = ({ posts, viewEntry, vote }) => {
     
     return (
-        <div>
+        <Stack spacing={2} className="Stack-container">
             {posts.map((post, index) => {
                 return <Card key={index} sx={{width: '100%'}}>
-                        <CardContent className="post-list-title">{post.title}</CardContent>
+                        <CardContent className="post-list-title" sx={{cursor: 'pointer'}} onClick={() => {viewEntry(post._id)}}>{post.title}</CardContent>
                         <CardContent className="post-list-vote">
-                            <Button className="agree">Agree</Button>
-                            <Button className="disagree">Disagree</Button>
-                        </CardContent>
-                        <CardContent className="view-post">
-                            <Button onClick={() => {viewEntry(post.id)}} className="post-list-view-button">View Post</Button>
+                            <ButtonGroup variant='outlined' size='small'>
+                                <Button 
+                                    variant='outlined' 
+                                    color="success" 
+                                    startIcon={<ThumbUp />} 
+                                    endIcon={<>{post.agree}</>}
+                                    onClick={() => {vote(post._id, 'post', 'agree')}}
+                                    >Agree</Button>
+                                <Button 
+                                    variant='outlined' 
+                                    color="error" 
+                                    startIcon={<ThumbDown />} 
+                                    endIcon={<>{post.disagree}</>}
+                                    onClick={() => {vote(post._id, 'post', 'disagree')}}
+                                    >Disagree</Button>
+                            </ButtonGroup>
+                            
+                            <Button sx={{float: 'right'}} onClick={() => {viewEntry(post._id)}} className="post-list-view-button">View Post</Button>
                         </CardContent>
                     </Card>
             })}
-        </div>
+        </Stack>
     )
 }
 

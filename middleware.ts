@@ -11,7 +11,7 @@ export const accessMiddleware = (req: Request, res: Response, next: NextFunction
 
         jwt.verify(token, SECRET_KEY, (err: Error, payload: any) => {
             if (err) return res.status(401).send(err)
-            req.body = payload
+            // req.body = payload
             next()
         })
     } catch (e) {

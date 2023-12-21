@@ -40,7 +40,7 @@ module.exports = app.post('/login', async (req: Request, res: Response) => {
     try {
         console.log('finding one')
         const query = User.where({username: username})
-        const login_user = await query.findOne()
+        let login_user = await query.findOne()
         console.log(login_user)
         if (!login_user) return res.status(404).send('User Not Found')
 
@@ -49,15 +49,8 @@ module.exports = app.post('/login', async (req: Request, res: Response) => {
         if (match) {
             const access_token = await SignAccessToken(username, password)
             const access_refresh_token = await SignRefreshToken(username, password)
-            // let user_info = JSON.parse(login_user)
-            delete login_user['password']
             console.log(login_user)
-            return res.status(200).json({user: {
-                id: login_user.__id,
-                username: login_user.username,
-                email: login_user.email,
-                createdAt: login_user.createdAt
-            }, token: access_token, refresh_token: access_refresh_token})
+            return res.status(200).json({user: login_user, token: access_token, refresh_token: access_refresh_token})
         }
         return res.status(404).send('User Not Found')
     } catch (e) {

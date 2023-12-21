@@ -1,25 +1,27 @@
 import { useState, ChangeEvent, FormEvent, FC } from 'react'
-import { TextField, Stack, ListItem, Button } from '@mui/material'
-import { Comment } from '../../utils/types_interfaces'
+import { TextField, Stack, ListItem, Button, FormControl } from '@mui/material'
+import { Comment, User } from '../../utils/types_interfaces'
+import { useSelector } from 'react-redux'
+import { RootState } from '../../store'
 
 
 type replyFormProps = {
     reply_to_id: number | undefined,
-    submitReply: Function
+    submitReply: Function,
+    focus: string
 }
 
 interface replyInputs {
-    author: string,
     comment: string
 }
 
 const defaultReplyInput = {
-    author: '',
     comment: ''
 }
 
-const ReplyForm: FC<replyFormProps> = ({ reply_to_id, submitReply }) => {
+const ReplyForm: FC<replyFormProps> = ({ reply_to_id, submitReply, focus }) => {
     const [replyFormInput, setForm] = useState<replyInputs>(defaultReplyInput);
+    const user = useSelector((state: RootState) => state.auth.user) as User
 
     const handleInputChange = (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const {name, value} = event.target
@@ -28,14 +30,19 @@ const ReplyForm: FC<replyFormProps> = ({ reply_to_id, submitReply }) => {
 
     const submitForm = (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault()
+        const user_info = JSON.parse(localStorage.getItem('user') as string)
         const reply_comments = new Array<Comment>;
         const form_bus: Comment = {
             comment: replyFormInput.comment,
-            author: replyFormInput.author,
+            author: user._id ? user._id.toString() : '',
             agree: 0,
             disagree: 0,
             replies: reply_comments,
-            comment_to_id: reply_to_id
+        }
+        if (focus === 'post') {
+            form_bus.post_id = reply_to_id
+        } else {
+            form_bus.comment_to_id = reply_to_id
         }
         submitReply(form_bus)
         setForm(defaultReplyInput)
@@ -45,22 +52,24 @@ const ReplyForm: FC<replyFormProps> = ({ reply_to_id, submitReply }) => {
         <form onSubmit={e => {submitForm(e)}}>
             <Stack spacing={2}>
                 <ListItem>
-                    <TextField
-                        variant="outlined"
-                        name="comment"
-                        label="Comment"
-                        type="text"
-                        value={replyFormInput.comment}
-                        onChange={e => {handleInputChange(e)}} />
+                    <FormControl fullWidth>
+                        <TextField
+                            variant="outlined"
+                            name="comment"
+                            label="Comment"
+                            type="text"
+                            value={replyFormInput.comment}
+                            onChange={e => {handleInputChange(e)}} />
+                    </FormControl>
                 </ListItem>
-                <ListItem>
+                {/* <ListItem>
                     <TextField
                         variant="outlined"
                         name="author"
                         label="Author"
                         value={replyFormInput.author}
                         onChange={e => handleInputChange(e)} />
-                </ListItem>
+                </ListItem> */}
                 <ListItem>
                     <Button variant="outlined"
                         type="submit">Submit</Button>

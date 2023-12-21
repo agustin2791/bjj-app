@@ -40,13 +40,16 @@ export const editDeletePost = async <T>(
 }
 
 export const newComment = async <T>(comment: Comment) : Promise<T> => {
-    const res = await fetch('http://localhost:8000/forum/new_reply', {
-        method: 'Post',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({comment})
-    })
+    const res = await api.post('/forum/new_reply/', comment)
+        .then((response) => {
+            return response.data
+        })
+        .catch((e) => {
+            console.log(e)
+            return []
+        })
 
-    return await res.json()
+    return res
 }
 
 export const editDeleteReply = async <T>(
@@ -62,4 +65,26 @@ export const editDeleteReply = async <T>(
     })
 
     return await res.json()
+}
+
+export const VoteAPI = async <T>(
+    vote_for: string,
+    vote_type: string,
+    vote: string,
+    user: string
+) : Promise<T> => {
+    const data = await api.post('/forum/vote', {
+        data: {
+            vote_for: vote_for, 
+            vote_type: vote_type,
+            vote: vote
+        },
+        user: user
+    }).then((res) => {
+        return res.data
+    }).catch((e) => {
+        console.log(e)
+        return []
+    })
+    return data
 }

@@ -1,10 +1,12 @@
 import { useState, ChangeEvent, FormEvent } from 'react';
 import { Stack, Button, Modal, Box} from '@mui/material'
 import NewPost from './newPostForm';
-import { newPost as postApi, getAllPosts } from '../../utils/forum-utils';
-import { ForumEntry, Comment } from '../../utils/types_interfaces';
+import { newPost as postApi, getAllPosts, VoteAPI } from '../../utils/forum-utils';
+import { ForumEntry, Comment, User } from '../../utils/types_interfaces';
 import PostList from './postList';
 import Post from './post';
+import { useSelector } from 'react-redux';
+import { RootState } from '../../store';
 
 
 const defaultPostForm = {
@@ -16,7 +18,7 @@ const defaultPostForm = {
 const blankEntry = (): ForumEntry => {
     const replyArray = new Array<Comment>
     return {
-        id: 0,
+        _id: 0,
         title: '',
         author: '',
         replies: replyArray,
@@ -52,6 +54,7 @@ const Forum = () => {
     const [viewingEntry, setViewingEntry] = useState(false);
     const [newPost, setNewPost] = useState(defaultPostForm)
     const [initForumCall, setInitForumCall] = useState(false)
+    const user = useSelector((state: RootState) => state.auth.user) as User
 
     
     const getInitPosts = async () => {
@@ -87,7 +90,8 @@ const Forum = () => {
     }
     
     const viewEntry = (entry_id: number) => {
-        const entry = forumList.filter(f => f.id === entry_id)
+        console.log('viewing entry', entry_id)
+        const entry = forumList.filter(f => {return f._id === entry_id})
         setFocusEntry(entry[0])
         setViewingEntry(true)
     }
@@ -100,12 +104,45 @@ const Forum = () => {
         setCreatingNewEntry(!creatingNewEntry)
     }
 
+    const votePost = async (post_id:string, vote_type: string, vote: string) => {
+        interface VoteReturn {
+            agree: string,
+            disagree: string
+        }
+        const user_data = JSON.parse(localStorage.getItem('user') as string)
+        const voted: VoteReturn = await VoteAPI(post_id, vote_type, vote, user_data['_id']) as VoteReturn
+        console.log(voted)
+        if (vote_type === 'post') {
+            const update_posts = forumList.map((p) => {
+                console.log(post_id, p._id)
+                if (post_id === p._id?.toString()) {
+                    p.agree = voted.agree === 'add' ? p.agree + 1 : voted.agree === 'remove' ? p.agree - 1 : p.agree
+                    p.disagree = voted.disagree === 'add' ? p.disagree + 1 : voted.disagree === 'remove' ? p.disagree - 1 : p.disagree
+                }
+                return p
+            })
+            setForumList(update_posts)
+        }
+    }
+
+    const updateFocusVote = (up: number, down: number) => {
+        setFocusEntry({...focusEntry, ['agree']: up, ['disagree']: down})
+        let list = forumList
+        list.forEach((f) => {
+            if (f._id === focusEntry._id) {
+                f.agree = up
+                f.disagree = down
+            }
+        })
+        setForumList(list)
+    }
     if (forumList.length <= 0 && !initForumCall) {
         getInitPosts()
     }
 
     return (
-        <Stack sx={{margin: '20px auto', maxWidth: '700px'}}>
+        <Stack sx={{margin: '20px auto', maxWidth: '80%'}}>
+            <h2>Welcome {user.username ? user.username : ''}</h2>
             <Button className="create-post-button" variant="contained" onClick={() => {toggleNewEntryPost()}}>Create A Post</Button>
              
             <Modal
@@ -122,8 +159,13 @@ const Forum = () => {
                 </Box>
             </Modal>
             {forumList.length === 0 && <h1>No Posts</h1>}
-            <PostList posts={forumList} viewEntry={viewEntry} />
-            {focusEntry !== null && <Post entry={focusEntry} open={viewingEntry} closeModal={toggleViewingEntry} />}
+            <PostList posts={forumList} viewEntry={viewEntry} vote={votePost} />
+            {focusEntry !== null && 
+                <Post 
+                    entry={focusEntry} 
+                    open={viewingEntry} 
+                    closeModal={toggleViewingEntry} 
+                    updateVote={updateFocusVote} />}
         </Stack>
     )
 }

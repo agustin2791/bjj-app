@@ -1,16 +1,16 @@
 export interface User {
-    id?: number,
-    username: string,
+    _id?: number,
+    username?: string,
     email: string,
     password: string,
     createdAt: Date
 }
 
 export interface ForumEntry {
-    id?: number | undefined,
+    _id?: number | undefined,
     title: string,
     description: string,
-    author: User | string,
+    author?: User | string,
     replies: Array<Comment>,
     agree: number,
     disagree: number,
@@ -18,12 +18,13 @@ export interface ForumEntry {
 }
 
 export interface Comment {
-    id?: number | undefined,
+    _id?: number | undefined,
     comment: string,
-    author: User | string,
+    author?: User | string,
     agree: number,
     disagree: number,
     replies: Array<Comment>,
-    comment_to_id: number | undefined,
+    comment_to_id?: number,
+    post_id?: number,
     created_at?: Date | null
 }

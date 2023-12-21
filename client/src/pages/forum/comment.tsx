@@ -1,57 +1,91 @@
 import { useState, FC } from 'react' 
-import { Stack, Card, Button, Modal } from '@mui/material'
+import { Stack, Card, Button, Modal, ButtonGroup } from '@mui/material'
 import { Comment } from '../../utils/types_interfaces'
 import ReplyForm from './replyForm'
+import { VoteAPI, newComment } from '../../utils/forum-utils'
+import { ThumbDown, ThumbUp } from '@mui/icons-material'
 
 // type CommentStruct  Comment {
 
 // }
 
-interface newComment {
+interface newCommentInput {
     comment: string,
     author: string,
 }
 
 const CommentReply: FC<Comment> = ({
-        id = undefined, 
+        _id = 0, 
         comment = '', 
         author = '', 
         replies = Array<Comment>, 
         agree = 0, 
         disagree = 0, 
-        comment_to_id = 0}) => {
-    const [newReply, setNewReply] = useState<newComment>()
-    const [toggleReply, setToggleReply] = useState(false)
+        comment_to_id = 0
+    }) => {
+    const [newReply, setNewReply] = useState<newCommentInput>()
+    const [toggleReply, setToggleReply] = useState<boolean>(false)
     const [allReplies, setAllReplies] = useState<Array<Comment>>(replies)
+    const [commentAgree, setCommentAgree] = useState(agree)
+    const [commentDisagree, setCommentDisagree] = useState(disagree)
 
 
     // METHODS
     const toggleReplyForm = () => {
-        setToggleReply(!toggleReply)
+        console.log(toggleReply)
+        setToggleReply(toggleReply ? false : true)
     }
 
-    const addReply = (user_reply: Comment) => {
-        setAllReplies([...allReplies, user_reply])
+    const addReply = async (user_reply: Comment) => {
+        const comment:Comment = await newComment(user_reply)
+        setAllReplies([comment, ...allReplies])
+    }
+
+    const votePost = async (post_id:string, vote_type: string, vote: string) => {
+        interface VoteReturn {
+            agree: string,
+            disagree: string
+        }
+        const user_data = JSON.parse(localStorage.getItem('user') as string)
+        const voted: VoteReturn = await VoteAPI(post_id, vote_type, vote, user_data['_id']) as VoteReturn
+        console.log(voted)
+        if (post_id === _id.toString()) {
+            let update_agree = voted.agree === 'add' ? commentAgree + 1 : voted.agree === 'remove' ? commentAgree - 1 : commentAgree
+            let update_disagree = voted.disagree === 'add' ? commentDisagree + 1 : voted.disagree === 'remove' ? commentDisagree - 1 : commentDisagree
+            setCommentAgree(update_agree)
+            setCommentDisagree(update_disagree)
+        }
     }
     return (
         <div className="comment-container">
             <div className="comment">{comment}</div>
             <div className="comment-details">
-                <div className="comment-author">{author.toString()}</div>
-                <Button variant="contained" color="primary">Agree {agree} </Button>
-                <Button variant="contained" color="secondary">Disagree {disagree} </Button>
-                <Button variant="contained" onClick={() => toggleReplyForm}>Reply</Button>
+                <div className="comment-author">{typeof author === 'object' ? author.username : author.toString()}</div>
+                <ButtonGroup variant='outlined' size='small'>
+                    <Button 
+                        variant='outlined' 
+                        color="success" 
+                        startIcon={<ThumbUp />} 
+                        endIcon={<>{commentAgree}</>}
+                        onClick={() => {votePost(_id.toString(), 'comment', 'agree')}}
+                        >Agree</Button>
+                    <Button 
+                        variant='outlined' 
+                        color="error" 
+                        startIcon={<ThumbDown />} 
+                        endIcon={<>{commentDisagree}</>}
+                        onClick={() => {votePost(_id.toString(), 'comment', 'disagree')}}
+                        >Disagree</Button>
+                </ButtonGroup>
+                {/* <Button variant="contained" onClick={() => toggleReplyForm()}>Reply dsdf</Button> */}
             </div>
-            {toggleReply &&
-                <Card>
-                    <ReplyForm reply_to_id={id} submitReply={addReply} />
-                </Card>
-            }
+            {toggleReply}
+            {toggleReply && <ReplyForm reply_to_id={_id} submitReply={addReply} focus='comment' /> }
             {allReplies.length > 0 && 
                 allReplies.map((r, index) => {
                     return (
                         <CommentReply key={index} 
-                            id={r.id} 
+                            _id={r._id} 
                             comment={r.comment} 
                             author={r.author} 
                             replies={r.replies}

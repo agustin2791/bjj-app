@@ -12,6 +12,9 @@ export const getData = async <T>(
         localStorage.setItem('accessToken', body.token)
         localStorage.setItem('refreshToken', body.refresh_token)
 
+        let user = body.user
+        delete user.password
+        localStorage.setItem('user', JSON.stringify(user))
         return body
     }).catch((e: AxiosError) => {
         console.log(e)
