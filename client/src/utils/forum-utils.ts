@@ -1,11 +1,14 @@
-import { ForumEntry, Comment } from './types_interfaces'
+import { ForumEntryBus, Comment } from './types_interfaces'
 import { AxiosResponse } from 'axios'
 import api from './../axios'
+import { UseAutocompleteParameters } from '@mui/material'
 export const getAllPosts = async <T>(
+    channel: string | undefined,
+    post_id: string | undefined,
     start: number,
     end: number
 ) : Promise<T> => {
-    const data = await api.post('http://localhost:8000/forum/posts ', {start, end})
+    const data = await api.post('/forum/posts ', {channel, post_id, start, end})
         .then((res) => {
             return res.data
         }).catch((e) => {
@@ -14,14 +17,12 @@ export const getAllPosts = async <T>(
     return data
 }
 
-export const newPost = async <T>(post: ForumEntry) : Promise<T> => {
-    const res = await fetch('http://localhost:8000/forum/new_post', {
-        method: 'Post',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({post})
-    })
+export const newPost = async <T>(post: ForumEntryBus) : Promise<T> => {
+    const data = await api.post('/forum/new_post', {post: post})
+        .then(res => {return res.data})
+        .catch(err=> { return {'message': 'no post created'}})
 
-    return await res.json()
+    return data
 }
 
 export const editDeletePost = async <T>(
@@ -86,5 +87,37 @@ export const VoteAPI = async <T>(
         console.log(e)
         return []
     })
+    return data
+}
+
+export const CreateChannel = async <T>(
+    category: string,
+    user: string
+) : Promise<T> => {
+    const data = await api.post('/forum/create_channel', {
+        user: user,
+        data: {
+            category: category
+        }
+    }).then((res) => {
+        return res.data
+    }).catch((error) => {
+        console.log(error)
+        return {}
+    })
+    return data
+}
+
+export const getChannelsByChar = async <T>(
+    channel: string
+) : Promise<T> => {
+    const data = await api.post('/forum/find_channel', {
+        channel: channel
+    }).then(res => {
+        return res.data
+    }).catch(err => {
+        return {'message': 'No channels found'}
+    })
+
     return data
 }

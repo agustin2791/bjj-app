@@ -8,7 +8,10 @@ export interface IUser {
     username: string,
     email: string,
     password: string,
-    createdAt: Date
+    createdAt: Date,
+    first_name: string,
+    last_name: string,
+    subscriptions: [mongoose.Schema.Types.ObjectId]
 }
 
 interface IUserMethods {
@@ -35,6 +38,10 @@ const userSchema = new Schema<IUser>({
         type: Date,
         default: Date.now,
     },
+    subscriptions: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Channel'
+    }]
 })
 
 userSchema.pre('save', async function (next: any) {

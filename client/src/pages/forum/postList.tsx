@@ -9,7 +9,7 @@ type PostListProps = {
     vote: Function
 }
 
-const PostList: FC<PostListProps> = ({ posts, viewEntry, vote }) => {
+const PostList: FC<PostListProps> = ({ posts, viewEntry, vote, }) => {
     
     return (
         <Stack spacing={2} className="Stack-container">

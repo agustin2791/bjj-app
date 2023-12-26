@@ -1,30 +1,38 @@
-import { useState, ChangeEvent, FormEvent } from 'react';
+import { useState, ChangeEvent, FormEvent, useEffect } from 'react';
 import { Stack, Button, Modal, Box} from '@mui/material'
 import NewPost from './newPostForm';
 import { newPost as postApi, getAllPosts, VoteAPI } from '../../utils/forum-utils';
-import { ForumEntry, Comment, User } from '../../utils/types_interfaces';
+import { ForumEntry, ForumEntryBus, Comment, User } from '../../utils/types_interfaces';
 import PostList from './postList';
 import Post from './post';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../store';
+import { useParams, useSearchParams } from 'react-router-dom';
 
 
 const defaultPostForm = {
     title: '',
     author: '',
-    description: ''
+    description: '',
+    channel: '',
+    channel_id: ''
 }
+
 
 const blankEntry = (): ForumEntry => {
     const replyArray = new Array<Comment>
     return {
         _id: 0,
         title: '',
-        author: '',
+        author: undefined,
         replies: replyArray,
         agree: 0,
         disagree: 0,
         description: '',
+        channel: '',
+        embeded: false,
+        embeded_type: '',
+        embeded_link: '',
         created_at: new Date()
     }
 }
@@ -48,6 +56,7 @@ const modalStyle = {
 //     })
 // }
 const Forum = () => {
+    const { channel, post_id } = useParams()
     const [forumList, setForumList] = useState<ForumEntry[] | []>([]);
     const [focusEntry, setFocusEntry] = useState<ForumEntry>(blankEntry);
     const [creatingNewEntry, setCreatingNewEntry] = useState(false);
@@ -55,27 +64,44 @@ const Forum = () => {
     const [newPost, setNewPost] = useState(defaultPostForm)
     const [initForumCall, setInitForumCall] = useState(false)
     const user = useSelector((state: RootState) => state.auth.user) as User
+    const is_logged_in: boolean = useSelector((state: RootState) => state.auth.is_logged_in)
 
+    useEffect(() => {
+        getInitPosts()
+    }, [channel])
     
     const getInitPosts = async () => {
-        let allPosts:ForumEntry[] = await getAllPosts(0, 10)
-        console.log(allPosts)
+
+        let allPosts:ForumEntry[] = await getAllPosts(channel, post_id, 0, 10)
+        
 
         setForumList(allPosts)
-        setInitForumCall(true) 
+        setInitForumCall(true)
+        if (post_id) {
+            let has_post = false
+            allPosts.forEach((p) => {if (post_id === p?._id?.toString()) has_post = true})
+            if (has_post) {
+                viewEntry(parseInt(post_id))
+            }
+            else {
+
+            }
+
+        }
     }
 
     const postNewForumEntry = async (event: FormEvent<HTMLFormElement>) => {
         // have an api to add/create a post
         event.preventDefault()
-        const reply_comments = new Array<Comment>
-        const new_post:ForumEntry = {
+        const reply_comments:Comment[] = []
+        const new_post: ForumEntryBus = {
             title: newPost.title,
-            author: newPost.author,
+            author: user._id ? user?._id.toString() : '',
             description: newPost.description,
             agree: 0,
             disagree: 0,
-            replies: reply_comments
+            replies: reply_comments,
+            channel: channel ? channel : newPost.channel_id
         }
         
         const post:ForumEntry = await postApi(new_post)
@@ -105,6 +131,7 @@ const Forum = () => {
     }
 
     const votePost = async (post_id:string, vote_type: string, vote: string) => {
+        if (!is_logged_in) return
         interface VoteReturn {
             agree: string,
             disagree: string
@@ -126,6 +153,7 @@ const Forum = () => {
     }
 
     const updateFocusVote = (up: number, down: number) => {
+        if (!is_logged_in) return
         setFocusEntry({...focusEntry, ['agree']: up, ['disagree']: down})
         let list = forumList
         list.forEach((f) => {
@@ -137,14 +165,17 @@ const Forum = () => {
         setForumList(list)
     }
     if (forumList.length <= 0 && !initForumCall) {
+        console.log(channel, post_id)
         getInitPosts()
     }
 
     return (
         <Stack sx={{margin: '20px auto', maxWidth: '80%'}}>
             <h2>Welcome {user.username ? user.username : ''}</h2>
-            <Button className="create-post-button" variant="contained" onClick={() => {toggleNewEntryPost()}}>Create A Post</Button>
+            {is_logged_in && 
+                <Button className="create-post-button" variant="contained" onClick={() => {toggleNewEntryPost()}}>Create A Post</Button>}
              
+            {is_logged_in &&
             <Modal
                 open={creatingNewEntry}
                 onClose={toggleNewEntryPost}
@@ -152,18 +183,21 @@ const Forum = () => {
                 <Box sx={modalStyle}>
                     <NewPost 
                         title={newPost.title}
-                        author={newPost.author}
+                        author={user.username ? user.username : newPost.author}
                         description={newPost.description}
+                        channel={channel ? channel : newPost.channel}
+                        has_channel={channel !== undefined}
                         handleInputChange={updatePostForm}
                         submitPost={postNewForumEntry}  />
                 </Box>
-            </Modal>
+            </Modal>}
             {forumList.length === 0 && <h1>No Posts</h1>}
             <PostList posts={forumList} viewEntry={viewEntry} vote={votePost} />
             {focusEntry !== null && 
                 <Post 
                     entry={focusEntry} 
-                    open={viewingEntry} 
+                    open={viewingEntry}
+                    logged_in={is_logged_in}
                     closeModal={toggleViewingEntry} 
                     updateVote={updateFocusVote} />}
         </Stack>

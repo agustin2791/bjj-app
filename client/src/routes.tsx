@@ -13,7 +13,12 @@ const AppRoute = () => {
         <Routes>
             <Route element={<MainLayout />}>
                 <Route path="/" element={<Forum />}></Route>
-                <Route path="/posts" element={<Forum />}></Route>
+                <Route path="/posts" element={<Forum />}>
+                    <Route path=":channel" element={<Forum />}>
+                        <Route path=":post_id" element={<Forum />}></Route>
+                    </Route>
+                    <Route path=":post_id" element={<Forum />}></Route>
+                </Route>
                 <Route path="/login" element={<Login />}></Route>
                 <Route path='/register' element={<Registration />}></Route>
                 <Route path="*" element={<div><h1>Nothing found</h1></div>}></Route>

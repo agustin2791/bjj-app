@@ -12,9 +12,21 @@ const convertObjectID = (user_id: string) => {
 // POSTS API =========================
 module.exports = app.post('/posts', async (req: Request, res: Response) => {
     await connect()
-    const {start, end} = req.body
+    const {channel, post_id, start, end} = req.body
     try {
-        const all_post_query = await Post.find()
+        let query
+        if (channel) {
+            const get_channel = await Channel.findOne({slug: channel})
+            if (get_channel) {
+                query = Post.where({channel: get_channel})
+            } else {
+                return res.status(404).json({'message': 'Channel does not exist'})
+            }
+            
+        } else {
+            query = Post.where({})
+        }
+        const all_post_query = await query.find()
             .populate('author')
             .populate({path: 'replies', populate: {path: 'author'}})
             .skip(start)
@@ -33,9 +45,17 @@ module.exports = app.post('/new_post', async (req: Request, res: Response) => {
     const post = req.body.post
 
     post['author'] = convertObjectID(post['author'])
-
+    let get_channel
+    try {
+        get_channel = await Channel.findOne({_id: post['channel']})
+    } catch (e) {
+        get_channel = await Channel.findOne({slug: post['channel']})
+    }
+    
+    post['channel'] = get_channel?._id
     const new_post = new Post(post)
     await new_post.save()
+    new_post.populate('author')
     res.status(200).json(new_post)
 })
 
@@ -118,24 +138,37 @@ module.exports = app.post('/channels', async (req: Request, res: Response) => {
 })
 
 interface ChannelInput {
-    channel_id: string,
-    channel: string
+    data:{
+        channel_id: string,
+        category: string
+    },
+    user: string
 }
 module.exports = app.post('/create_channel', async (req: Request, res: Response) => {
     await connect()
-    const {channel}:ChannelInput = req.body
-    const channel_slug = channel.replace(/ /g, '-').toLowerCase()
-    const new_channel = new Channel({channel: channel, slug: channel_slug})
+    const {data, user}:ChannelInput = req.body
+    const channel_slug = data.category.replace(/ /g, '-').toLowerCase()
+    const new_channel = new Channel({category: data.category, slug: channel_slug, top: false})
     new_channel.save()
 
     return res.status(200).json(new_channel)
+    // return res.status(200).json({})
+})
+
+module.exports = app.post('/find_channel', async (req: Request, res: Response) => {
+    await connect()
+    const channel = req.body.channel
+    console.log(channel)
+    const channel_query = await Channel.find({category: {$regex: channel.toString()}})
+
+    return res.status(200).json(channel_query)
 })
 
 module.exports = app.post('/delete_channel', async (req: Request, res: Response) => {
     await connect()
-    const {channel_id}:ChannelInput = req.body
+    const {data, user}:ChannelInput = req.body
 
-    await Channel.findOneAndDelete({_id: channel_id})
+    await Channel.findOneAndDelete({_id: data.channel_id})
     return res.status(200).json({'message': 'Channel Deleted'})
 })
 

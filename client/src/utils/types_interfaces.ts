@@ -7,14 +7,31 @@ export interface User {
 }
 
 export interface ForumEntry {
-    _id?: number | undefined,
+    _id: number,
     title: string,
     description: string,
-    author?: User | string,
-    replies: Array<Comment>,
+    author?: User,
+    replies: Comment[],
     agree: number,
     disagree: number,
-    created_at?: Date | null
+    created_at: Date,
+    channel: string,
+    embeded?: boolean,
+    embeded_type?: string,
+    embeded_link?: string
+}
+
+export interface ForumEntryBus {
+    title: string,
+    description: string,
+    author?: string,
+    replies?: Comment[],
+    agree: number,
+    disagree: number,
+    channel: string,
+    embeded?: boolean,
+    embeded_type?: string,
+    embeded_link?: string
 }
 
 export interface Comment {
@@ -27,4 +44,11 @@ export interface Comment {
     comment_to_id?: number,
     post_id?: number,
     created_at?: Date | null
+}
+
+export interface Channel {
+    _id: string,
+    category: string,
+    slug: string,
+    top: boolean
 }

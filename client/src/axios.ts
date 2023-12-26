@@ -48,10 +48,10 @@ api.interceptors.response.use(
     async response => {return response},
     async error => {
         if (!error.response) return Promise.reject(error)
-        if (error.response.status === 502) {
-            window.location.href = '/'
-            return Promise.reject(error)
-        }
+        // if (error.response.status === 502) {
+        //     window.location.href = '/login'
+        //     return Promise.reject(error)
+        // }
         if (error.response.status === 401) {
             if (error.response.data?.details) {
                 console.log(error.response.data.detail)

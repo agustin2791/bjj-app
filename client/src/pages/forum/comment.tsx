@@ -4,6 +4,8 @@ import { Comment } from '../../utils/types_interfaces'
 import ReplyForm from './replyForm'
 import { VoteAPI, newComment } from '../../utils/forum-utils'
 import { ThumbDown, ThumbUp } from '@mui/icons-material'
+import { useSelector } from 'react-redux'
+import { RootState } from '../../store'
 
 // type CommentStruct  Comment {
 
@@ -28,6 +30,7 @@ const CommentReply: FC<Comment> = ({
     const [allReplies, setAllReplies] = useState<Array<Comment>>(replies)
     const [commentAgree, setCommentAgree] = useState(agree)
     const [commentDisagree, setCommentDisagree] = useState(disagree)
+    const is_logged_in: boolean = useSelector((state: RootState) => state.auth.is_logged_in)
 
 
     // METHODS
@@ -42,6 +45,7 @@ const CommentReply: FC<Comment> = ({
     }
 
     const votePost = async (post_id:string, vote_type: string, vote: string) => {
+        if (!is_logged_in) return
         interface VoteReturn {
             agree: string,
             disagree: string

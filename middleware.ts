@@ -5,6 +5,8 @@ const jwt = require('jsonwebtoken')
 
 export const accessMiddleware = (req: Request, res: Response, next: NextFunction) => {
     try  {
+        console.log(req.url)
+        if (req.url.includes('/posts')) return next()
         if (!req.headers['authorization']) return res.status(502).send('No auth token')
         const bearer_token = req.headers.authorization
         const token = bearer_token.split(' ')[1]

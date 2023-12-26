@@ -9,14 +9,13 @@ import { ThumbDown, ThumbUp } from '@mui/icons-material';
 type PostProps = {
     entry: ForumEntry,
     open: boolean,
+    logged_in: boolean,
     closeModal: Function,
     updateVote: Function
 }
-const Post: FC<PostProps> = ({ entry, open, closeModal, updateVote }) => {
+const Post: FC<PostProps> = ({ entry, open, logged_in, closeModal, updateVote }) => {
     const [toggleReply, setToggleReply] = useState<boolean>(false)
-    const [replyComments, setComments] = useState(entry.replies)
-    const [userAgree, setUserAgree] = useState(entry.agree)
-    const [userDisagree, setUserDisagree] = useState(entry.disagree)
+    const [replyComments, setComments] = useState<Comment[]>(entry.replies)
 
     const toggleReplyForm = () => {
         setToggleReply(!toggleReply)
@@ -24,10 +23,15 @@ const Post: FC<PostProps> = ({ entry, open, closeModal, updateVote }) => {
 
     const addComment = async (new_comment: Comment) => {
         const comment:Comment = await newComment(new_comment)
-        setComments([comment, ...replyComments])
+        if (replyComments === undefined) {
+            setComments([comment])
+        } else {
+            setComments([comment, ...replyComments])
+        }
     }
 
     const votePost = async (vote_type: string, vote: string) => {
+        if (!logged_in) return
         const post_id = entry._id ? entry._id.toString() : ''
         interface VoteReturn {
             agree: string,
@@ -75,11 +79,15 @@ const Post: FC<PostProps> = ({ entry, open, closeModal, updateVote }) => {
                                 onClick={() => {votePost('post', 'disagree')}}
                                 >Disagree</Button>
                         </ButtonGroup>
-                        <br /><br />
-                        <Button variant="contained" 
-                            onClick={() => toggleReplyForm()}>Reply</Button>
-                        <br /><br />
-                        {toggleReply && <ReplyForm reply_to_id={entry._id} submitReply={addComment} focus="post" /> }
+                        <br />{logged_in &&
+                        <>
+                            <br />
+                            <Button variant="contained" 
+                                onClick={() => toggleReplyForm()}>Reply</Button>
+                            <br />
+                        </>
+                        }<br />
+                        {toggleReply && logged_in && <ReplyForm reply_to_id={entry._id} submitReply={addComment} focus="post" /> }
                         {replyComments.length > 0 && replyComments.map((r: Comment, index) => {
                             return (
                                 <CommentReply key={index} 
@@ -89,7 +97,8 @@ const Post: FC<PostProps> = ({ entry, open, closeModal, updateVote }) => {
                                     replies={r.replies}
                                     agree={r.agree}
                                     disagree={r.disagree}
-                                    post_id={r.comment_to_id} />
+                                    post_id={r.comment_to_id}
+                                     />
                             )
                         })}
                     </div>
