@@ -16,9 +16,9 @@ export interface ForumEntry {
     disagree: number,
     created_at: Date,
     channel: string,
-    embeded?: boolean,
-    embeded_type?: string,
-    embeded_link?: string
+    embedded?: boolean,
+    embedded_type?: string,
+    embedded_link?: string
 }
 
 export interface ForumEntryBus {
@@ -29,9 +29,9 @@ export interface ForumEntryBus {
     agree: number,
     disagree: number,
     channel: string,
-    embeded?: boolean,
-    embeded_type?: string,
-    embeded_link?: string
+    embedded?: boolean,
+    embedded_type?: string,
+    embedded_link?: string
 }
 
 export interface Comment {

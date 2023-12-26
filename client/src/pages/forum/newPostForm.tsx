@@ -1,5 +1,5 @@
 import { InputHTMLAttributes, FC, useState, useEffect, ChangeEvent } from "react";
-import { Button, TextField, ListItem, Select, MenuItem, Autocomplete, AutocompleteRenderInputParams, Box } from "@mui/material";
+import { Button, TextField, ListItem, Select, MenuItem, Autocomplete, AutocompleteRenderInputParams, Box, Switch, FormControl } from "@mui/material";
 import Stack from '@mui/material/Stack'
 import { getChannelsByChar } from "../../utils/forum-utils";
 import { Channel } from "../../utils/types_interfaces";
@@ -11,14 +11,27 @@ type newPostForm = {
     channel: string,
     handleInputChange: Function,
     submitPost: Function,
-    has_channel: boolean
+    has_channel: boolean,
+    embedded?: boolean
+    embedded_type?: string,
+    embedded_link?: string
 }
 interface ChannelOptions {
     label: string,
     value: string,
     fullWidth: boolean
 }
-const NewPost: FC<newPostForm> = ( {title, author, description, handleInputChange, submitPost, channel, has_channel }) => {
+const NewPost: FC<newPostForm> = ( {title,
+    author,
+    description,
+    handleInputChange,
+    submitPost,
+    channel,
+    has_channel,
+    embedded = false, 
+    embedded_type = '',
+    embedded_link = ''
+}) => {
     const [channelList, setChannelList] = useState<Array<ChannelOptions>>([])
 
     useEffect(() => {
@@ -50,6 +63,26 @@ const NewPost: FC<newPostForm> = ( {title, author, description, handleInputChang
         
     }
 
+    const selectembedded = (event: any) => {
+        try {
+            event.target.value = event.target.checked
+            event.target.name = 'embedded'
+            handleInputChange(event)
+        } catch (e) {
+            console.log(e)
+            return
+        }
+    }
+
+    const selectembeddedType = (event: any) => {
+        try {
+            event.target.name = 'embedded_type'
+            handleInputChange(event)
+        } catch (e) {
+            return
+        }
+    }
+
     return (
         <form onSubmit={e => {submitPost(e)}}>
             <Stack spacing={2}>
@@ -64,7 +97,7 @@ const NewPost: FC<newPostForm> = ( {title, author, description, handleInputChang
                         onChange={e => {handleInputChange(e)}} />
                 </ListItem>
                 <ListItem>
-                    <Box sx={{width: '45%'}}>
+                    {!has_channel && <Box sx={{width: '45%'}}>
                         <Autocomplete
                             disablePortal
                             readOnly={has_channel}
@@ -84,16 +117,34 @@ const NewPost: FC<newPostForm> = ( {title, author, description, handleInputChang
                             <br />
                             {channel}
                         
+                    </Box>}
+                    {has_channel && <div><b>Channel: </b>{channel}</div>}
+                </ListItem>
+                <ListItem>
+                    <Box sx={{width: '130px'}}>
+                        <b>Add a link?</b><br /><Switch value={embedded} onChange={e => {selectembedded(e)}} arai-label="Add a link" />
                     </Box>
-                    <Box sx={{width: '50%', marginLeft: 'auto'}}>
-                        <TextField 
-                            variant="outlined"
-                            fullWidth={true} 
-                            name="author" 
-                            value={author}
-                            disabled
-                            onChange={e => {handleInputChange(e)}} />
+                    {embedded && <>
+                    <Box sx={{width: '45%', paddingRight: '15px'}}>
+                        <Select
+                            name="embedded_type"
+                            fullWidth={true}
+                            value={embedded_type}
+                            onChange={e => {selectembeddedType(e)}}
+                        >
+                            <MenuItem value="link">External link</MenuItem>
+                            <MenuItem value="video">Video (YouTube)</MenuItem>
+                        </Select>
                     </Box>
+                    <Box sx={{width: '50%'}}>
+                        <TextField
+                            fullWidth={true}
+                            label="Media Link"
+                            name="embedded_link"
+                            value={embedded_link}
+                            onChange={e => {handleInputChange(e)}}></TextField>
+                    </Box>
+                    </>}
                 </ListItem>
                 <ListItem>
                     <TextField 

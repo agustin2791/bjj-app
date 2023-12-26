@@ -14,9 +14,9 @@ type IPost = {
     channel: IChannel,
     user_agree?: number,
     user_disagree?: number,
-    embeded: boolean,
-    embeded_type: string,
-    embeded_link: string
+    embedded: boolean,
+    embedded_type: string,
+    embedded_link: string
 }
 
 
@@ -49,9 +49,9 @@ const PostSchema = new mongoose.Schema<IPost>({
         type: mongoose.Schema.ObjectId,
         ref: 'Channel'
     },
-    embeded: Boolean,
-    embeded_type: String,
-    embeded_link: String
+    embedded: Boolean,
+    embedded_type: String,
+    embedded_link: String
 })
 
 PostSchema.virtual('user_agree').get(function() {

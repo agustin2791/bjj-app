@@ -51,7 +51,6 @@ module.exports = app.post('/new_post', async (req: Request, res: Response) => {
     } catch (e) {
         get_channel = await Channel.findOne({slug: post['channel']})
     }
-    
     post['channel'] = get_channel?._id
     const new_post = new Post(post)
     await new_post.save()

@@ -1,10 +1,17 @@
-import { useState, FC } from 'react'
-import { Card, Modal, Stack, ListItem, Button, ButtonGroup } from '@mui/material'
+import { useState, FC, useEffect } from 'react'
+import { Card, Modal, Stack, ListItem, Button, ButtonGroup, Box } from '@mui/material'
 import { ForumEntry, Comment } from "../../utils/types_interfaces";
 import CommentReply from './comment';
 import ReplyForm from './replyForm';
 import { VoteAPI, newComment } from '../../utils/forum-utils';
 import { ThumbDown, ThumbUp } from '@mui/icons-material';
+import { load as yt_loader } from 'youtube-iframe';
+
+const YouTubeIframeLoader = require('youtube-iframe')
+// const tag = document.createElement('script')
+// tag.src = "https://www.youtube.com/iframe_api"
+// const firstScriptTag = document.getElementsByTagName('script')[0]
+// firstScriptTag.parentNode?.insertBefore(tag, firstScriptTag)
 
 type PostProps = {
     entry: ForumEntry,
@@ -16,6 +23,10 @@ type PostProps = {
 const Post: FC<PostProps> = ({ entry, open, logged_in, closeModal, updateVote }) => {
     const [toggleReply, setToggleReply] = useState<boolean>(false)
     const [replyComments, setComments] = useState<Comment[]>(entry.replies)
+
+    useEffect(function () {
+        
+    }, [entry])
 
     const toggleReplyForm = () => {
         setToggleReply(!toggleReply)
@@ -47,6 +58,12 @@ const Post: FC<PostProps> = ({ entry, open, logged_in, closeModal, updateVote })
         }
     }
 
+    const getYTVideoId = (url: string) => {
+        return url.includes('v=') ? url.split('v=')[1] : ''
+    }
+
+    
+
     if (entry.replies.length > replyComments.length) {
         setComments(entry.replies)
     }
@@ -59,6 +76,28 @@ const Post: FC<PostProps> = ({ entry, open, logged_in, closeModal, updateVote })
                         <div className="post-title">{entry.title}</div>
                         <div className="post-author">{typeof entry.author === 'string' ? entry.author : entry.author?.username}</div>
                     </ListItem>
+                    {entry.embedded && entry.embedded_type === 'video' &&
+                    <ListItem>
+                        <Box sx={{margin: '10px auto'}} id="youtube_player">
+                            <iframe
+                            width="560"
+                            height="315"
+                            src={`https://www.youtube.com/embed/${getYTVideoId(entry.embedded_link ? entry.embedded_link : '')}?si=Llfw2STacD8JEuMz`}
+                            title="YouTube video player"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                            allowFullScreen
+                            ></iframe>
+                        </Box>
+                        
+                    </ListItem>
+                    }
+                    {entry.embedded && entry.embedded_type === 'link' && 
+                        <ListItem>
+                            <Box sx={{margin: '10px auto'}}>
+                                <a href={entry.embedded_link} target='_blank'>{entry.embedded_link}</a>
+                            </Box>
+                        </ListItem>
+                    }
                     <ListItem>
                         <div className="post-description">{entry.description}</div>
                     </ListItem>

@@ -15,7 +15,10 @@ const defaultPostForm = {
     author: '',
     description: '',
     channel: '',
-    channel_id: ''
+    channel_id: '',
+    embedded: false,
+    embedded_type: 'link',
+    embedded_link: ''
 }
 
 
@@ -30,9 +33,9 @@ const blankEntry = (): ForumEntry => {
         disagree: 0,
         description: '',
         channel: '',
-        embeded: false,
-        embeded_type: '',
-        embeded_link: '',
+        embedded: false,
+        embedded_type: '',
+        embedded_link: '',
         created_at: new Date()
     }
 }
@@ -94,7 +97,7 @@ const Forum = () => {
         // have an api to add/create a post
         event.preventDefault()
         const reply_comments:Comment[] = []
-        const new_post: ForumEntryBus = {
+        let new_post: ForumEntryBus = {
             title: newPost.title,
             author: user._id ? user?._id.toString() : '',
             description: newPost.description,
@@ -102,6 +105,12 @@ const Forum = () => {
             disagree: 0,
             replies: reply_comments,
             channel: channel ? channel : newPost.channel_id
+        }
+
+        if (newPost.embedded) {
+            new_post.embedded = newPost.embedded
+            new_post.embedded_type = newPost.embedded_type
+            new_post.embedded_link = newPost.embedded_link
         }
         
         const post:ForumEntry = await postApi(new_post)
@@ -112,7 +121,8 @@ const Forum = () => {
 
     const updatePostForm = (event: ChangeEvent<HTMLInputElement>) => {
         const {name, value} = event.target
-        setNewPost({...newPost, [name]: value})
+        
+        setNewPost({...newPost, [name]: name === 'embedded' ? value === 'true' : value})
     }
     
     const viewEntry = (entry_id: number) => {
@@ -186,6 +196,9 @@ const Forum = () => {
                         author={user.username ? user.username : newPost.author}
                         description={newPost.description}
                         channel={channel ? channel : newPost.channel}
+                        embedded={newPost.embedded}
+                        embedded_type={newPost.embedded_type}
+                        embedded_link={newPost.embedded_link}
                         has_channel={channel !== undefined}
                         handleInputChange={updatePostForm}
                         submitPost={postNewForumEntry}  />
