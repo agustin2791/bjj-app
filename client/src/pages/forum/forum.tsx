@@ -8,6 +8,7 @@ import Post from './post';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../store';
 import { useParams, useSearchParams } from 'react-router-dom';
+import SlotModal from '../../components/form-input/template/modal';
 
 
 const defaultPostForm = {
@@ -186,24 +187,22 @@ const Forum = () => {
                 <Button className="create-post-button" variant="contained" onClick={() => {toggleNewEntryPost()}}>Create A Post</Button>}
              
             {is_logged_in &&
-            <Modal
+            <SlotModal
                 open={creatingNewEntry}
-                onClose={toggleNewEntryPost}
-                aria-labelledby="modal-modal-title">
-                <Box sx={modalStyle}>
-                    <NewPost 
-                        title={newPost.title}
-                        author={user.username ? user.username : newPost.author}
-                        description={newPost.description}
-                        channel={channel ? channel : newPost.channel}
-                        embedded={newPost.embedded}
-                        embedded_type={newPost.embedded_type}
-                        embedded_link={newPost.embedded_link}
-                        has_channel={channel !== undefined}
-                        handleInputChange={updatePostForm}
-                        submitPost={postNewForumEntry}  />
-                </Box>
-            </Modal>}
+                close={toggleNewEntryPost}
+                modal_content={
+                <NewPost 
+                    title={newPost.title}
+                    author={user.username ? user.username : newPost.author}
+                    description={newPost.description}
+                    channel={channel ? channel : newPost.channel}
+                    embedded={newPost.embedded}
+                    embedded_type={newPost.embedded_type}
+                    embedded_link={newPost.embedded_link}
+                    has_channel={channel !== undefined}
+                    handleInputChange={updatePostForm}
+                    submitPost={postNewForumEntry}  />}
+                ></SlotModal>}
             {forumList.length === 0 && <h1>No Posts</h1>}
             <PostList posts={forumList} viewEntry={viewEntry} vote={votePost} />
             {focusEntry !== null && 

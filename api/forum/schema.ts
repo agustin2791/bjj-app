@@ -54,9 +54,7 @@ const PostSchema = new mongoose.Schema<IPost>({
     embedded_link: String
 })
 
-PostSchema.virtual('user_agree').get(function() {
-    return 3
-})
+
 export const Post = mongoose.model<IPost>('Post', PostSchema)
 
 

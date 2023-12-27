@@ -52,3 +52,44 @@ export interface Channel {
     slug: string,
     top: boolean
 }
+
+export interface Academy {
+    _id?: string,
+    name: string,
+    address: {
+        street: string,
+        city: string,
+        state: string,
+        zip_code: string,
+        country: string
+    },
+    phone_number: string,
+    preferred_email: string,
+    affiliation: string,
+    affiliation_id?: string,
+    owner: User,
+    head_instructor: string,
+    head_instructor_id?: string,
+    instructors?: [string],
+    instructors_id?: [User],
+    schedule?: [Schedule],
+    students?: [User],
+    private?: boolean,
+    admin?: [User]
+}
+
+export interface Schedule {
+    _id?: string,
+    name: string,
+    classes: [AcadamyClass]
+}
+
+export interface AcadamyClass {
+    _id?: string,
+    name: string,
+    description: string,
+    start: string,
+    end: string,
+    instructor: string,
+    instructor_id?: User
+}

@@ -7,6 +7,7 @@ import { accessMiddleware } from "./middleware";
 
 const auth = require('./api/auth/controller')
 const forum = require('./api/forum/controller')
+const academy = require('./api/academy/controller')
 
 dotenv.config();
 
@@ -22,6 +23,7 @@ res.send('Hello World From the Typescript Server!')
 // API Calls
 app.use('/auth', auth)
 app.use('/forum', accessMiddleware, forum)
+app.use('/academy', accessMiddleware, academy)
 
 const port = process.env.PORT || 8000;
 

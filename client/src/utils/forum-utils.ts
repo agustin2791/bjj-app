@@ -1,7 +1,7 @@
 import { ForumEntryBus, Comment } from './types_interfaces'
 import { AxiosResponse } from 'axios'
 import api from './../axios'
-import { UseAutocompleteParameters } from '@mui/material'
+
 export const getAllPosts = async <T>(
     channel: string | undefined,
     post_id: string | undefined,

@@ -1,4 +1,5 @@
 import MainLayout from "./components/form-input/template/layout";
+import NewAcademy from "./pages/academy/newAcademy";
 import Login from "./pages/auth/login";
 import Registration
  from "./pages/auth/register";
@@ -21,6 +22,7 @@ const AppRoute = () => {
                 </Route>
                 <Route path="/login" element={<Login />}></Route>
                 <Route path='/register' element={<Registration />}></Route>
+                <Route path="/academy/create" element={<NewAcademy />}></Route>
                 <Route path="*" element={<div><h1>Nothing found</h1></div>}></Route>
             </Route>
         </Routes>
