@@ -1,7 +1,14 @@
 
 
 .left-drawer {
+    padding-top: 100px;
     background-color: beige;
     width: 10%;
     border-right: solid #333 thin;
+}
+.main-content {
+    background-color: #f9f9f9;
+    max-height: 100vh;
+    padding-top: 100px;
+    overflow: auto;
 }

@@ -56,6 +56,7 @@ export interface Channel {
 export interface Academy {
     _id?: string,
     name: string,
+    slug?: string,
     address: {
         street: string,
         city: string,

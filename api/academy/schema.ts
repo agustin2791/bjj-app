@@ -4,6 +4,7 @@ import { IUser } from '../auth/schema'
 type IAcademy = {
     _id?: string,
     name: string,
+    slug: string,
     address: {
         street: string,
         city: string,
@@ -29,7 +30,13 @@ type IAcademy = {
 const AcademySchema = new mongoose.Schema<IAcademy>({
     name: {
         type: String,
-        required: true
+        required: true,
+        unique: true
+    },
+    slug: {
+        type: String,
+        required: true,
+        unique: true
     },
     address: {
         street: String,

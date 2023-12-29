@@ -5,10 +5,12 @@ import SlotCard from "../template/card"
 import { RootState } from "../../../store"
 import { useSelector } from "react-redux"
 import { createNewAcademy } from "../../../utils/academy-utils"
+import { redirect } from "react-router-dom"
 
 
 const defaultAcademyForm: Academy = {
     name: '',
+    slug: '',
     address: {
         street: '',
         city: '',
@@ -59,8 +61,11 @@ const AcademyDetailForm: FC<FormProps> = (props) => {
     const submitForm = async () => {
         if (!isEdit){
             setLoading(true)
-            await createNewAcademy(academyForm, user)
+            const slug = academyForm.name.replace(/ /g, '-').toLowerCase()
+            setAcademyForm({...academyForm, slug: slug})
+            const academy_data = await createNewAcademy(academyForm, user) as Academy
             setLoading(false)
+            window.location.href = `/academy/edit/${slug}`
         }
     }
     return (

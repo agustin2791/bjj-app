@@ -10,10 +10,11 @@ module.exports = app.post('/get_academy', async (req: Request, res: Response) =>
     await connect()
 
     try {
-        const academy_id = req.body.data.academy_id
+        const academy_id = req.body.data.academy_slug
         // populate all other fields when ready
-        const academy = await Academy.findOne({_id: academy_id})
+        const academy = await Academy.findOne({slug: academy_id})
             .populate('head_instructor_id')
+            .populate('admin')
 
         return res.status(200).json(academy)
     } catch (e) {

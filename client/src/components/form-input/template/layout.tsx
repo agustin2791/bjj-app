@@ -8,7 +8,7 @@ const MainLayout = () => {
     return (
         <>
         <Box className="box-container">
-            <AppBar position='static'>
+            <AppBar position='fixed'>
                 <Toolbar>
                     <IconButton edge="start" color="inherit" aria-label="menu" sx={{ mr: 2 }}>
                         <Menu />
@@ -16,7 +16,7 @@ const MainLayout = () => {
                 </Toolbar>
             </AppBar>
             <Navigation />
-            <Box className="box-item-3">
+            <Box className="box-item-3 main-content">
                 <Outlet />
             </Box>  
         </Box>

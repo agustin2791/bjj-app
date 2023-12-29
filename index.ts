@@ -1,5 +1,6 @@
 import dotenv from "dotenv";
 import express, { Express, Request, Response } from "express";
+import axios from "axios";
 import path from "path";
 import cors from "cors";
 import {connect} from './mongodb';
@@ -8,6 +9,7 @@ import { accessMiddleware } from "./middleware";
 const auth = require('./api/auth/controller')
 const forum = require('./api/forum/controller')
 const academy = require('./api/academy/controller')
+const maps = require('./api/mapController')
 
 dotenv.config();
 
@@ -15,6 +17,9 @@ const app: Express = express();
 
 app.use(express.json());
 app.use(cors());
+
+
+const port = process.env.PORT || 8000;
 
 app.get('/', (req: Request, res: Response) => {
 res.send('Hello World From the Typescript Server!')
@@ -24,8 +29,25 @@ res.send('Hello World From the Typescript Server!')
 app.use('/auth', auth)
 app.use('/forum', accessMiddleware, forum)
 app.use('/academy', accessMiddleware, academy)
+app.use('/maps', maps)
+app.use('/google-map-search', async (req: Request, res: Response) => {
 
-const port = process.env.PORT || 8000;
+  try {
+    const url = req.body.query
+    const response = await axios.get(url)
+    if (response.data.status === 'OK') {
+      console.log('response data', response.data.candidates[0].geometry)
+      const location = response.data.candidates[0].geometry.location
+      return res.status(200).json(location)
+    } else {
+      return res.status(404).send('address not found')
+    }
+  } catch (e) {
+    return res.status(404).send('not found')
+  }
+})
+
+
 
 app.listen(port, async () => {
     await connect()
