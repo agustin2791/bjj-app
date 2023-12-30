@@ -58,18 +58,13 @@ const EditAcademy = () => {
                 <div style={{width: '100%'}}>
                         <div role="tabpanel" hidden={editFocus !== 'details'} id="vertical-tab-details">
                             <AcademyDetailForm isEdit={true} academyEdit={academyInfo} />
-                            <AcademyDetailForm isEdit={true} academyEdit={academyInfo} />
-                            <AcademyDetailForm isEdit={true} academyEdit={academyInfo} />
                         </div>
                         <div role="tabpanel" hidden={editFocus !== 'instructors'} id="vertical-tab-instructors">
-                            Instructors go here
                         </div>
                         <div role="tabpanel" hidden={editFocus !== 'schedule'} id="vertical-tab-schedule">
                             Schedule goes here
                         </div>
                 </div>
-                {editFocus}
-                
             </Grid>
         </Grid>
         </>

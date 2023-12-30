@@ -1,6 +1,6 @@
 import { connect } from '../../mongodb';
 import express, { Express, Request, Response } from "express";
-import { Academy, AcademyClass, Schedule } from './schema';
+import { Academy, AcademyClass, IAcademy, Schedule } from './schema';
 import { Schema, Types } from "mongoose";
 
 const app: Express = express()
@@ -28,6 +28,9 @@ module.exports = app.post('/create_academy', async (req: Request, res: Response)
         let academy = req.body.data
         let user_owner = req.body.user
         academy.owner = user_owner
+        if (academy.slug === '' || academy.slug === undefined) {
+            academy.slug = academy.name.replace(/ /g, '-').toLowerCase()
+        }
         if (academy.affiliation_id === '')
             academy.affiliation_id = null
         console.log(academy)
@@ -45,17 +48,16 @@ module.exports = app.post('/create_academy', async (req: Request, res: Response)
 
 interface academyUpdateInput {
     academy_id: string,
-    update_field: string,
-    update_value: string
+    updates: IAcademy
 }
 
 module.exports = app.post('/update_academy', async (req: Request, res: Response) => {
     await connect()
 
     try {
-        const {academy_id, update_field, update_value}: academyUpdateInput = req.body.data
+        const {academy_id, updates}: academyUpdateInput = req.body.data
 
-        const academy = await Academy.findOneAndUpdate({_id: academy_id}, {[update_field]: update_value})
+        const academy = await Academy.findOneAndUpdate({_id: academy_id}, updates)
         return res.status(200).json(academy)
     } catch (e) {
         return res.status(404).send('Did not update')

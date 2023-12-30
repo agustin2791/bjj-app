@@ -5,7 +5,7 @@ import path from "path";
 import cors from "cors";
 import {connect} from './mongodb';
 import { accessMiddleware } from "./middleware";
-
+require('dotenv').config();
 const auth = require('./api/auth/controller')
 const forum = require('./api/forum/controller')
 const academy = require('./api/academy/controller')

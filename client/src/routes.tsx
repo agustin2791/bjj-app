@@ -28,7 +28,7 @@ const AppRoute = () => {
                 <Route path='/register' element={<Registration />}></Route>
                 <Route path="/academy/create" element={<NewAcademy />}></Route>
                 <Route path="/academy/edit/:slug" element={<EditAcademy />}></Route>
-                <Route path="/academy/find" element={<MapView />}></Route>
+                <Route path="/academy/find" element={<MapView multiple={true} />}></Route>
                 <Route path="*" element={<div><h1>Nothing found</h1></div>}></Route>
             </Route>
         </Routes>

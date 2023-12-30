@@ -1,17 +1,21 @@
 import mongoose from "mongoose";
+import axios from "axios";
 import { IUser } from '../auth/schema'
 
-type IAcademy = {
+export type IAcademy = {
     _id?: string,
     name: string,
     slug: string,
     address: {
         street: string,
+        street2: string,
         city: string,
         state: string,
         zip_code: string,
         country: string
     },
+    formattedAddress: string,
+    website: string,
     phone_number: string,
     preferred_email: string,
     affiliation: string,
@@ -40,11 +44,14 @@ const AcademySchema = new mongoose.Schema<IAcademy>({
     },
     address: {
         street: String,
+        street2: String,
         city: String,
         state: String,
         zip_code: String,
         country: String
     },
+    formattedAddress: String,
+    website: String,
     phone_number: String,
     preferred_email: String,
     affiliation: {
@@ -89,7 +96,27 @@ const AcademySchema = new mongoose.Schema<IAcademy>({
         ref: 'User'
     }]
 })
-
+AcademySchema.pre('save', async function(next) {
+    if (!this.formattedAddress || !this.formattedAddress.includes(this.address.street)){
+        const {street, street2, city, state, zip_code, country} = this.address
+        try {
+            const GOOGLE_MAP_API = process.env.MAPAPI
+            const full_address = `${street} ${street2}, ${city}, ${state} ${zip_code}`
+            const goo_url = `https://maps.googleapis.com/maps/api/place/findplacefromtext/json?fields=formatted_address%2Cname%2Crating%2Copening_hours%2Cgeometry&input=${full_address.replace(/ /g, '%2C')}&inputtype=textquery&key=${GOOGLE_MAP_API}`
+            const data = await axios.get(goo_url)
+            console.log(data.data)
+            if (data.data.status === 'OK') {
+                this.formattedAddress = data.data.candidates[0].formatted_address
+                next()
+            } else {
+                next()
+            }
+        } catch (e) {
+            next()
+        }
+    }
+    next()
+})
 export const Academy = mongoose.model<IAcademy>('Academy', AcademySchema)
 
 type ISchedule = {

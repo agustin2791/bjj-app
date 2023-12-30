@@ -1,11 +1,18 @@
 import { Button, TextField } from "@mui/material";
-import React, { useEffect, useState } from "react";
+import React, { FC, useEffect, useState } from "react";
 import api from "../../../axios";
-const GOOGLE_MAP_API = 'AIzaSyArng3Dcnpy2bc086qO1FY2cIN-N_rWfwQ'
+import { Academy } from "../../../utils/types_interfaces";
+import { getAcademyList } from "../../../utils/academy-utils";
 
 const containerStyle = {
     width: '400px',
     height: '400px'
+}
+
+type mapsProps = {
+    width?: string,
+    height?: string,
+    multiple: boolean
 }
 
 type latLng = {
@@ -19,16 +26,39 @@ type returnMapCall = {
         results: Array<any>
     }
 }
+
+type mapMarkerReturn = {
+    business_status: string,
+    geometry: any,
+    icon: string,
+    icon_background_color: string,
+    icon_mask_base_uri: string,
+    name: string,
+    opening_hours: any,
+    photos: any,
+    place_id: string,
+    plus_code: string
+    rating: number,
+    reference: string,
+    scope: string,
+    types: any,
+    user_ratings_total: number,
+    vicinity: string,
+    formatted_address: string
+}
 let focusMap
 
 
-const MapView = () => {
+const MapView: FC<mapsProps> = (props) => {
+    const { width, height, multiple } = props
     const [centerLocation, setCenterLocation] = useState<latLng>({ lat: -25.344, lng: 131.031 })
     const [search, setSearch] = useState('')
-    const [markers, setMarkers] = useState([])
-    const [map, setMap] = useState(null)
+    const [markers, setMarkers] = useState<mapMarkerReturn[]>([])
+    const [academyList, setAcademyList] = useState<Array<Academy>>([])
 
     useEffect(function() {
+        if (!multiple)
+            getMap()
         initMap()
     }, [centerLocation])
 
@@ -50,6 +80,7 @@ const MapView = () => {
                 position: m['geometry']['location'],
                 title: m['name']
             })
+
             marker.addListener("click", () => {
                 infoWindow.close();
                 infoWindow.setContent(`<div><h3>${marker.title}</h3></div>`);
@@ -59,11 +90,21 @@ const MapView = () => {
         
     }
 
+    const getMap = async () => {
+        return
+    }
+
     const searchLocation = async () => {
         try {
             const data = await api.post('/maps/search-by-zip', {address: search}) as returnMapCall
-            console.log(data)
-            setMarkers(data.data.results as any)
+            setMarkers(data.data.results as mapMarkerReturn[])
+
+            if (multiple) {
+                const addresses = markers.map((m) => {return m.formatted_address})
+                const academy_data = await getAcademyList(addresses)
+                console.log(academy_data)
+                setAcademyList(academy_data as Academy[])
+            }
             setCenterLocation(data.data.center as latLng)
         } catch (e)  {
             console.log(e)
@@ -73,8 +114,11 @@ const MapView = () => {
     }
     return (
         <>
-        <TextField label="search location" fullWidth value={search} onChange={(e) => {setSearch(e.target.value)}}></TextField>
-        <Button onClick={() => {searchLocation()}}>Search</Button>
+        {multiple && <div>
+            <TextField label="search location" fullWidth value={search} onChange={(e) => {setSearch(e.target.value)}}></TextField>
+            <Button onClick={() => {searchLocation()}}>Search</Button>
+        </div>}
+        
         <div id="map" style={{height: '400px', width: '400px'}}></div></>
     )
 }

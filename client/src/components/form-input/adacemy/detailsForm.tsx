@@ -4,7 +4,7 @@ import { Backdrop, Box, Button, CircularProgress, Grid, Stack, TextField } from 
 import SlotCard from "../template/card"
 import { RootState } from "../../../store"
 import { useSelector } from "react-redux"
-import { createNewAcademy } from "../../../utils/academy-utils"
+import { createNewAcademy, updateAcademyDetails } from "../../../utils/academy-utils"
 import { redirect } from "react-router-dom"
 
 
@@ -66,6 +66,10 @@ const AcademyDetailForm: FC<FormProps> = (props) => {
             const academy_data = await createNewAcademy(academyForm, user) as Academy
             setLoading(false)
             window.location.href = `/academy/edit/${slug}`
+        } else {
+            setLoading(true)
+            const academy_data = await updateAcademyDetails(academyForm)
+            setLoading(false)
         }
     }
     return (
@@ -119,8 +123,9 @@ const AcademyDetailForm: FC<FormProps> = (props) => {
                 <Grid item xs={6}></Grid>
                 <Grid item xs={6}>
                     <Grid container spacing={2}>
-                        <Grid item xs={6}><Button fullWidth variant="outlined" color="info" onClick={() => {clearForm()}}>Clear</Button></Grid>
-                        <Grid item xs={6}><Button fullWidth variant="outlined" color="success" onClick={() => {submitForm()}}>Create Academy</Button></Grid>
+                        {!isEdit && 
+                            <Grid item xs={6}><Button fullWidth variant="outlined" color="info" onClick={() => {clearForm()}}>Clear</Button></Grid>}
+                        <Grid item xs={isEdit ? 12 : 6}><Button fullWidth variant="outlined" color="success" onClick={() => {submitForm()}}>{isEdit ? 'Update' : 'Create Academy'}</Button></Grid>
                     </Grid>
                 </Grid>
             </Grid>
