@@ -1,7 +1,6 @@
-import MainLayout from "./components/form-input/template/layout";
+import MainLayout from "./components/template/layout";
 import AcademyDetails from "./pages/academy/details";
 import EditAcademy from "./pages/academy/editAcademy";
-import MapView from "./components/form-input/adacemy/map";
 import NewAcademy from "./pages/academy/newAcademy";
 import Login from "./pages/auth/login";
 import Registration
@@ -12,6 +11,7 @@ import {
     Route,
     Routes
   } from 'react-router-dom'
+import FindAcademy from "./pages/academy/findAcademy";
 
 const AppRoute = () => {
     return (
@@ -27,8 +27,9 @@ const AppRoute = () => {
                 <Route path="/login" element={<Login />}></Route>
                 <Route path='/register' element={<Registration />}></Route>
                 <Route path="/academy/create" element={<NewAcademy />}></Route>
+                <Route path="/academy/:slug" element={<AcademyDetails />}></Route>
                 <Route path="/academy/edit/:slug" element={<EditAcademy />}></Route>
-                <Route path="/academy/find" element={<MapView multiple={true} />}></Route>
+                <Route path="/academy/find" element={<FindAcademy />}></Route>
                 <Route path="*" element={<div><h1>Nothing found</h1></div>}></Route>
             </Route>
         </Routes>

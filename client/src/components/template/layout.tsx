@@ -2,6 +2,7 @@ import { Outlet, Route, Routes } from "react-router-dom"
 import Navigation from "./navigation"
 import { Box, AppBar, Toolbar, IconButton, Drawer } from "@mui/material";
 import { Menu } from '@mui/icons-material'
+import TopBar from "./topBar";
 
 const drawerWidth = 250;
 const MainLayout = () => {
@@ -13,6 +14,7 @@ const MainLayout = () => {
                     <IconButton edge="start" color="inherit" aria-label="menu" sx={{ mr: 2 }}>
                         <Menu />
                     </IconButton>
+                    <TopBar />
                 </Toolbar>
             </AppBar>
             <Navigation />

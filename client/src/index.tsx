@@ -7,17 +7,18 @@ import {
   BrowserRouter,
   Routes
 } from 'react-router-dom'
-import { CssBaseline } from '@mui/material';
+import { CssBaseline, ThemeProvider } from '@mui/material';
 import './index.css';
 // import routes from './routes'
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 import './styles/main.scss'
-import Navigation from './components/form-input/template/navigation';
+import Navigation from './components/template/navigation';
 import AppRoute from './routes';
 import { Provider } from 'react-redux';
 import { persistor, store } from './store';
 import { PersistGate } from 'redux-persist/integration/react';
+import theme from './styles/customTheme';
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
@@ -25,14 +26,16 @@ const root = ReactDOM.createRoot(
 
 root.render(
   <React.StrictMode>
-    <Provider store={store}>
-      <PersistGate loading={null} persistor={persistor}>
-        <CssBaseline />
-        <BrowserRouter>
-          <AppRoute />
-        </BrowserRouter>
-      </PersistGate>
-    </Provider>
+    <ThemeProvider theme={theme}>
+      <Provider store={store}>
+        <PersistGate loading={null} persistor={persistor}>
+          <CssBaseline />
+          <BrowserRouter>
+            <AppRoute />
+          </BrowserRouter>
+        </PersistGate>
+      </Provider>
+    </ThemeProvider>
     
   </React.StrictMode>
 );

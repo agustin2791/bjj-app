@@ -8,7 +8,7 @@ import Post from './post';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../store';
 import { useParams, useSearchParams } from 'react-router-dom';
-import SlotModal from '../../components/form-input/template/modal';
+import SlotModal from '../../components/template/modal';
 
 
 const defaultPostForm = {

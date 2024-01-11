@@ -1,7 +1,8 @@
 import { connect } from '../../mongodb';
 import express, { Express, Request, Response } from "express";
-import { Academy, AcademyClass, IAcademy, Schedule } from './schema';
+import { Academy, AcademyClass, AcademyClassSchedule, IAcademy, Schedule, updateFormattedAddress } from './schema';
 import { Schema, Types } from "mongoose";
+import { exec } from 'child_process';
 
 const app: Express = express()
 
@@ -33,7 +34,6 @@ module.exports = app.post('/create_academy', async (req: Request, res: Response)
         }
         if (academy.affiliation_id === '')
             academy.affiliation_id = null
-        console.log(academy)
         const new_academy = new Academy(academy)
         new_academy.admin.push(user_owner)
         await new_academy.save()
@@ -58,6 +58,23 @@ module.exports = app.post('/update_academy', async (req: Request, res: Response)
         const {academy_id, updates}: academyUpdateInput = req.body.data
 
         const academy = await Academy.findOneAndUpdate({_id: academy_id}, updates)
+        await academy?.save()
+        console.log(academy?.formattedAddress, updates?.address)
+        if (!academy?.formattedAddress || 
+            !academy?.formattedAddress.includes(updates?.address.street) ||
+            !academy?.formattedAddress.includes(updates?.address.city) ||
+            !academy?.formattedAddress.includes(updates?.address.state) ||
+            !academy?.formattedAddress.includes(updates?.address.zip_code) ||
+            !academy?.formattedAddress.includes(updates?.address.country)
+            ) 
+        {
+            interface updateFormatAddress {formattedAddress: string, location: {lat: number, lng: number}}
+            let {formattedAddress, location} = await updateFormattedAddress(updates?.address) as updateFormatAddress
+            console.log(formattedAddress, location)
+            academy?.updateOne({formattedAddress: formattedAddress}).exec()
+            academy?.updateOne({location: location}).exec()
+        }
+        await academy?.save()
         return res.status(200).json(academy)
     } catch (e) {
         return res.status(404).send('Did not update')
@@ -74,6 +91,69 @@ module.exports = app.post('/delete_academy', async (req: Request, res: Response)
         return res.status(200).json({'message': 'Academy deleted.'})
     } catch (e) {
         return res.status(404).send('academy still active')
+    }
+})
+// Classes API ======================================
+module.exports = app.post('/get_academy_classes', async (req: Request, res: Response) => {
+    await connect()
+
+    try {
+        const academy_id = req.body.academy_id
+
+        const academy_classes_query = Academy.where({academy_id})
+        const academy_classes = await academy_classes_query.find()
+
+        return res.status(200).json(academy_classes)
+    } catch (e) {
+        console.log(e)
+        return res.status(404).send('No classes found')
+    }
+})
+module.exports = app.post('/create_class', async (req: Request, res: Response) => {
+    await connect()
+
+    try {
+        const academy_id = req.body.academy_id
+        const class_details = req.body.class_details
+
+        const academy = await Academy.findOne({_id: academy_id})
+        const academy_class = new AcademyClass({name: class_details, academy: academy})
+        await academy_class.save()
+        
+        return res.status(200).json(academy_class)
+    } catch (e) {
+        console.log(e)
+        return res.status(404).send('Class Not Created')
+    }
+})
+
+module.exports = app.post('/update_class', async (req: Request, res: Response) => {
+    await connect()
+
+    try {
+        const academy_details = req.body.academy_details
+        const req_user = req.body.user
+
+        const class_update = await AcademyClass.findOneAndUpdate({_id: academy_details._id}, academy_details)
+        await class_update?.save()
+        return res.status(200).json(class_update)
+    } catch (e) {
+        console.log(e)
+        return res.status(404).send('Class not updated')
+    }
+})
+
+module.exports = app.post('/delete_class', async (req: Request, res: Response) => {
+    await connect()
+
+    try {
+        const academy_class_id = req.body.class_id
+
+        await AcademyClass.findOneAndDelete({_id: academy_class_id})
+        return res.status(200).json({'message': 'class was deleted'})
+    } catch (e) {
+        console.log(e)
+        return res.status(404).send('Nothing was deleted')
     }
 })
 
@@ -107,7 +187,7 @@ interface ClassSchedule {
     instructor_id: string,
     description: string
 }
-module.exports = app.post('/create_class', async (req: Request, res: Response) => {
+module.exports = app.post('/create_schedule_class', async (req: Request, res: Response) => {
     await connect()
     
     try {
@@ -115,7 +195,7 @@ module.exports = app.post('/create_class', async (req: Request, res: Response) =
         const schedule_id = req.body.data.schedule_id
 
         const schedule = await Schedule.findOne({_id: schedule_id})
-        const new_class = new AcademyClass(class_schedule)
+        const new_class = new AcademyClassSchedule(class_schedule)
         await new_class.save()
 
         schedule?.classes.push(new_class)
@@ -133,12 +213,12 @@ interface classUpdateInput {
     update_field: string,
     update_value: string
 }
-module.exports = app.post('/update_class', async (req: Request, res: Response) => {
+module.exports = app.post('/update_schedule_class', async (req: Request, res: Response) => {
     await connect()
 
     try {
         const {class_id, update_field, update_value}: classUpdateInput = req.body.data
-        const updateClass = await AcademyClass.findOneAndUpdate({_id: class_id}, {[update_field]: update_value})
+        const updateClass = await AcademyClassSchedule.findOneAndUpdate({_id: class_id}, {[update_field]: update_value})
         updateClass?.save()
         return res.status(200).json(updateClass)
     } catch (e) {
@@ -146,12 +226,12 @@ module.exports = app.post('/update_class', async (req: Request, res: Response) =
     }
 })
 
-module.exports = app.post('/delete_class', async (req: Request, res: Response) => {
+module.exports = app.post('/delete_schedule_class', async (req: Request, res: Response) => {
     await connect()
 
     try {
         const {class_id}: classUpdateInput = req.body.data
-        await AcademyClass.findOneAndDelete({_id: class_id})
+        await AcademyClassSchedule.findOneAndDelete({_id: class_id})
 
         return res.status(200).json({'message': 'Class deleted'})
     } catch (e) {

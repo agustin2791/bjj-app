@@ -1,4 +1,4 @@
-
+$top_bar_link_button: #fff;
 
 .left-drawer {
     padding-top: 100px;
@@ -11,4 +11,22 @@
     max-height: 100vh;
     padding-top: 100px;
     overflow: auto;
+}
+.top-bar-nav-links {
+    color: #fff;
+    text-decoration: none;
+    &:hover, &:visited, &:active {
+        color: #fff;
+        text-decoration: none;
+    }
+}
+.details-container {
+    .academy_find_details {
+        width: 80%;
+        margin: 10px auto;
+        padding: 20px;
+        border: solid thin #333;
+        border-radius: 10px;
+        box-shadow: 0px 2px 2px #aaa;
+    }
 }

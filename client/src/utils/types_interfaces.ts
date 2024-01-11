@@ -76,16 +76,26 @@ export interface Academy {
     schedule?: [Schedule],
     students?: [User],
     private?: boolean,
-    admin?: [User]
+    admin?: [User],
+    formattedAddress?: string,
+    website?: string,
+    location?: {lat: number, lng: number}
+}
+
+export interface AcademyClass {
+    _id?: string,
+    name: string,
+    academy: string,
+    details: string,
 }
 
 export interface Schedule {
     _id?: string,
     name: string,
-    classes: [AcadamyClass]
+    classes: [AcadamyClassSchedule]
 }
 
-export interface AcadamyClass {
+export interface AcadamyClassSchedule {
     _id?: string,
     name: string,
     description: string,

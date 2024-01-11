@@ -1,5 +1,5 @@
 import api from "../axios";
-import { Academy, User } from "./types_interfaces";
+import { Academy, AcademyClass, User } from "./types_interfaces";
 
 export const createNewAcademy = async <T>(academy: Academy, user: User): Promise<T> => {
     const new_demy = await api.post('/academy/create_academy', {data: academy, user: user})
@@ -13,6 +13,7 @@ export const createNewAcademy = async <T>(academy: Academy, user: User): Promise
 }
 
 export const getAcademyDetails = async <T>(academy_slug: string, user: User): Promise<T> => {
+    console.log('getting academy')
     const academy_details = await api.post('/academy/get_academy', {data: {academy_slug}, user: user})
         .then((res) => {
             return res.data
@@ -39,4 +40,11 @@ export const updateAcademyDetails = async <T>(updates: Academy): Promise<T> => {
         .then((res) => {return res.data})
         .catch((err) => console.log(err))
     return academy_data
+}
+
+export const createAcademyClass = async <T>(details: AcademyClass, academy_id: string): Promise<T> => {
+    const class_data = await api.post('/academy/create_class', {class_details: details, academy_id})
+        .then((res) => {return res.data})
+        .catch((err) => console.log(err))
+    return class_data
 }

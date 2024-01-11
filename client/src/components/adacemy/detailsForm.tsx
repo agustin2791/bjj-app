@@ -1,11 +1,11 @@
 import { ChangeEvent, FC, useEffect, useState } from "react"
-import { Academy, Schedule, User } from "../../../utils/types_interfaces"
-import { Backdrop, Box, Button, CircularProgress, Grid, Stack, TextField } from "@mui/material"
+import { Academy, User } from "../../utils/types_interfaces"
+import { Backdrop, Button, CircularProgress, Grid, Stack, TextField } from "@mui/material"
 import SlotCard from "../template/card"
-import { RootState } from "../../../store"
+import { RootState } from "../../store"
 import { useSelector } from "react-redux"
-import { createNewAcademy, updateAcademyDetails } from "../../../utils/academy-utils"
-import { redirect } from "react-router-dom"
+import { createNewAcademy, updateAcademyDetails } from "../../utils/academy-utils"
+import { useLocation, useSearchParams } from "react-router-dom"
 
 
 const defaultAcademyForm: Academy = {
@@ -34,15 +34,39 @@ type FormProps = {
 }
 const AcademyDetailForm: FC<FormProps> = (props) => {
     const {isEdit, academyEdit} = props
+    const { search } = useLocation()
     const [academyForm, setAcademyForm] = useState<Academy>(defaultAcademyForm)
-    const [instructors, setInstructors] = useState([])
     const [loading, setLoading] = useState(false)
     const user = useSelector((state: RootState) => state.auth.user) as User 
+    const [searchParams, setSearchParams] = useSearchParams()
 
     useEffect(function () {
         if (academyEdit !== undefined)
             setAcademyForm(academyEdit)
     }, [academyEdit])
+    useEffect(function () {
+        console.log(search)
+        if (!isEdit){
+            console.log('getting query')
+            try {
+                // const query = useMemo(() => new URLSearchParams(search), [search])
+                // console.log(query)
+                setAcademyForm({...academyForm, name: searchParams.get('name') as string, 
+                address: {
+                    street: searchParams.get('street') as string,
+                    city: searchParams.get('city') as string,
+                    state: searchParams.get('state') as string,
+                    country: searchParams.get('country') as string,
+                    zip_code: searchParams.get('zip') as string
+
+                }})
+            }
+            catch (e) {
+                console.error(e)
+                return
+            }
+        }
+    }, [isEdit])
 
     const handleInputChange = (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const {name, value} = event.target

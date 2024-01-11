@@ -1,6 +1,6 @@
 import { FC } from "react";
-import SlotCard from "../../components/form-input/template/card";
-import AcademyDetailForm from "../../components/form-input/adacemy/detailsForm";
+import SlotCard from "../../components/template/card";
+import AcademyDetailForm from "../../components/adacemy/detailsForm";
 
 
 const NewAcademy = () => {

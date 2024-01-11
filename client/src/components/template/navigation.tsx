@@ -3,9 +3,9 @@ import { useNavigate, Link } from "react-router-dom";
 import { AppBar, Box, Drawer, IconButton, List, SwipeableDrawer, Toolbar, ListItem, Button, Modal } from "@mui/material";
 import { Menu } from '@mui/icons-material'
 import { useDispatch, useSelector } from "react-redux";
-import { RootState } from "../../../store";
-import { logout } from "../../../store/auth";
-import NewChannelForm from "../../../pages/forum/newChannelForm";
+import { RootState } from "../../store";
+import { logout } from "../../store/auth";
+import NewChannelForm from "../../pages/forum/newChannelForm";
 
 const navigation_links = [
     {

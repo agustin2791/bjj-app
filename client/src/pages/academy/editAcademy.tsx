@@ -1,11 +1,12 @@
 import { Drawer, Grid, List, ListItem, Tab, Tabs } from "@mui/material";
 import { redirect, useParams } from "react-router-dom";
-import AcademyDetailForm from "../../components/form-input/adacemy/detailsForm";
+import AcademyDetailForm from "../../components/adacemy/detailsForm";
 import { useEffect, useState } from "react";
 import { Academy, User } from "../../utils/types_interfaces";
 import { useSelector } from "react-redux";
 import { RootState } from "../../store";
 import { getAcademyDetails } from "../../utils/academy-utils";
+import EditInstructors from "../../components/adacemy/instructors/editInstructors";
 
 const editFocusOption = [
     {label: 'Details', value: 'details'},
@@ -60,6 +61,7 @@ const EditAcademy = () => {
                             <AcademyDetailForm isEdit={true} academyEdit={academyInfo} />
                         </div>
                         <div role="tabpanel" hidden={editFocus !== 'instructors'} id="vertical-tab-instructors">
+                            <EditInstructors />
                         </div>
                         <div role="tabpanel" hidden={editFocus !== 'schedule'} id="vertical-tab-schedule">
                             Schedule goes here
