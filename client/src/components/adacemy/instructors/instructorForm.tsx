@@ -87,7 +87,7 @@ const InstructorForm = () => {
             <Grid item sm={6}>
                 <Select label="Belt Rank" value={newInstructor.belt_rank} onChange={(e) => {selectBeltRank(e)}} fullWidth>
                     {beltRanks.map(b => { return (
-                        <MenuItem value={b}>{b}</MenuItem>
+                        <MenuItem key={b} value={b}>{b}</MenuItem>
                     )})}
                 </Select>
             </Grid></> || <>

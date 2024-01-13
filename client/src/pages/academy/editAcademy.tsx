@@ -7,6 +7,7 @@ import { useSelector } from "react-redux";
 import { RootState } from "../../store";
 import { getAcademyDetails } from "../../utils/academy-utils";
 import EditInstructors from "../../components/adacemy/instructors/editInstructors";
+import EditAcademySchedule from "../../components/adacemy/schedule/editSchedule";
 
 const editFocusOption = [
     {label: 'Details', value: 'details'},
@@ -64,7 +65,7 @@ const EditAcademy = () => {
                             <EditInstructors />
                         </div>
                         <div role="tabpanel" hidden={editFocus !== 'schedule'} id="vertical-tab-schedule">
-                            Schedule goes here
+                            <EditAcademySchedule />
                         </div>
                 </div>
             </Grid>

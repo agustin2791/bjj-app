@@ -42,9 +42,32 @@ export const updateAcademyDetails = async <T>(updates: Academy): Promise<T> => {
     return academy_data
 }
 
+export const getAcademyClasses = async <T>(academy_id: string): Promise<T> => {
+    const academy_classes = await api.post('/academy/get_academy_classes', {academy_id})
+        .then((res) => {return res.data})
+        .catch((err) => console.log(err))
+
+    return academy_classes
+}
+
 export const createAcademyClass = async <T>(details: AcademyClass, academy_id: string): Promise<T> => {
     const class_data = await api.post('/academy/create_class', {class_details: details, academy_id})
         .then((res) => {return res.data})
         .catch((err) => console.log(err))
     return class_data
+}
+
+export const updateAcademyClass = async  <T>(details: AcademyClass, user: User): Promise<T> => {
+    const class_data = await api.post('/academy/update_class', {academy_details: details, user})
+        .then((res) => {return res.data})
+        .catch((err) => console.log(err))
+    return class_data
+}
+
+export const deleteAcademyClass = async <T>(details: AcademyClass, user: User): Promise<T> => {
+    const class_delete = await api.post('/academy/delete_class', {class_id: details._id, user})
+        .then((res) => {return res.data})
+        .catch((err) => console.log(err))
+
+    return class_delete
 }
