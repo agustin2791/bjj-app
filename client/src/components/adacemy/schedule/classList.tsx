@@ -11,11 +11,12 @@ import AddClassForm from "./addClassForm";
 type listProps = {
     academy_id: string,
     academy_class_list: AcademyClass[],
-    update: Function,
-    deleteClass: Function
+    update?: Function,
+    deleteClass?: Function,
+    edit: boolean
 }
 const AcademyClassList: FC<listProps> = (props) => {
-    const { academy_id, academy_class_list, update, deleteClass } = props
+    const { academy_id, academy_class_list, update, deleteClass, edit } = props
     const { slug } = useParams()
     const [classFocus, setClassFocus] = useState<AcademyClass>()
     const [showModule, setShowModule] = useState(false)
@@ -43,15 +44,18 @@ const AcademyClassList: FC<listProps> = (props) => {
     }
 
     const submitEdit = (class_details: AcademyClass, edit: boolean) => {
-        update(class_details, edit)
+        if (update)
+            update(class_details, edit)
     }
 
     const confirmDelete = async () => {
         console.log('delete class')
         if (classFocus){
             await deleteAcademyClass(classFocus, user).then((res) => {
-                deleteClass(classFocus?._id)
-                setShowDelete(false)
+                if (deleteClass) {
+                    deleteClass(classFocus?._id)
+                    setShowDelete(false)
+                }
             })
         }
         
@@ -86,12 +90,12 @@ const AcademyClassList: FC<listProps> = (props) => {
                                         <Typography variant="body1">{l.name}</Typography>
                                         <Typography sx={{color: '#999'}} variant="caption">{l.details}</Typography>
                                     </Grid>
-                                    <Grid item sm={4} sx={{textAlign: 'right'}}>
+                                    {edit && <Grid item sm={4} sx={{textAlign: 'right'}}>
                                         <ButtonGroup>
                                             <Button color="primary" onClick={() => {openEdit(l._id ? l._id : '')}}>Edit</Button>
                                             <Button color="error" onClick={() => {openDelete(l._id ? l._id : '')}}>Delete</Button>
                                         </ButtonGroup>
-                                    </Grid>
+                                    </Grid>}
                                     <Grid item sm={10}>
                                         <Divider />
                                     </Grid>

@@ -196,23 +196,58 @@ export const AcademyClass = mongoose.model<IClass>('AcademyClass', AcademyClassS
 
 type IClassSchedule = {
     _id?: string,
-    name: string,
-    description: string,
-    start: string,
-    end: string,
-    instructor: string,
-    instructor_id?: IUser,
-    academy_class: IClass
+    academy_class: IClass,
+    schedule: [
+        {day: string, start: string, end: string, alt_instructor: string, alt_instructor_id: IUser}
+    ]
 }
 
 const AcademyClassScheduleSchema = new mongoose.Schema<IClassSchedule>({
-    name: {type: String, required: true},
-    description: {type: String, required: true},
-    start: {type: String, required: true},
-    end: {type: String, required: true},
-    instructor: String,
-    instructor_id: {type: mongoose.Schema.Types.ObjectId, ref: 'User'},
-    academy_class: {type: mongoose.Schema.Types.ObjectId, ref: 'AcademyClass'}
+    academy_class: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'AcademyClass'
+    },
+    schedule: [
+        {
+            day: String,
+            start: String,
+            end: String,
+            instructor: String,
+            instructor_id: {
+                type: mongoose.Schema.Types.ObjectId,
+                ref: 'User'
+            }
+        }
+    ]
 })
 
 export const AcademyClassSchedule = mongoose.model<IClassSchedule>('AcademyClassSchedule', AcademyClassScheduleSchema)
+
+type IAcademyInstructor = {
+    name: string,
+    belt_rank: string,
+    academy_classes: [IClass],
+    academy: IAcademy
+    user: IUser
+}
+
+const AcademyInstructorSchema = new mongoose.Schema<IAcademyInstructor>({
+    name: String,
+    belt_rank: String,
+    academy: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Academy'
+    },
+    academy_classes: [
+        {
+            type: mongoose.Schema.Types.ObjectId, 
+            ref: 'AcademyClass'
+        }
+    ],
+    user: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User'
+    }
+})
+
+export const AcademyInstructor = mongoose.model<IAcademyInstructor>('AcademyInstructor', AcademyInstructorSchema)

@@ -62,7 +62,7 @@ const EditAcademy = () => {
                             <AcademyDetailForm isEdit={true} academyEdit={academyInfo} />
                         </div>
                         <div role="tabpanel" hidden={editFocus !== 'instructors'} id="vertical-tab-instructors">
-                            <EditInstructors />
+                            {academyInfo?._id && <EditInstructors academy_id={academyInfo?._id} /> || <div>Nothing here</div>}
                         </div>
                         <div role="tabpanel" hidden={editFocus !== 'schedule'} id="vertical-tab-schedule">
                             <EditAcademySchedule />

@@ -19,6 +19,15 @@
         }
     }
 }
+.schedule-box {
+    width: calc(100%/8);
+    height: auto;
+    padding: 10px;
+    word-wrap: break-word;
+    overflow: auto;
+    border: solid thin #333;
+    text-align: center;
+}
 // .details-container {
 //     position: absolute;
 //     background: #fff;

@@ -21,3 +21,17 @@ export const accessMiddleware = (req: Request, res: Response, next: NextFunction
         return res.status(401).send(e)
     }
 }
+
+export const academyMiddleware = (req: Request, res: Response, next: NextFunction) => {
+    try {
+        console.log(req.url)
+        if (req.url.includes('get')) return next()
+        if (Object.keys(req.body).includes('user')) {
+            // check if user is in the academy admin
+        } else {
+            return res.status(401).send('You must be signed in')
+        }
+    } catch (e) {
+        return res.status(401).send(e)
+    }
+}

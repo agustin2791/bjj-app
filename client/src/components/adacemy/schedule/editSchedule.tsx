@@ -1,4 +1,4 @@
-import { Box, Stack, Tabs } from "@mui/material"
+import { Box, Stack, Tab, Tabs } from "@mui/material"
 import AcademyClassList from "./classList"
 import { useEffect, useState } from "react"
 import { Academy, AcademyClass, User } from "../../../utils/types_interfaces"
@@ -7,12 +7,14 @@ import { useSelector } from "react-redux"
 import { RootState } from "../../../store"
 import { getAcademyClasses, getAcademyDetails } from "../../../utils/academy-utils"
 import AddClassForm from "./addClassForm"
+import AddEditSchedule from "./addEditSchedule"
 
 const EditAcademySchedule = () => {
-    const [editFocus, setEditFocus] = useState(0)
+    const [editFocus, setEditFocus] = useState('schedule')
     const [allClassList, setAllClassList] = useState<AcademyClass[]>([] as AcademyClass[])
     const [academyId, setAcademyId] = useState('')
     const [toggleNewClass, setToggleNewClass] = useState(false)
+    const [classChanges, setClassChanges] = useState(0)
     const { slug } = useParams()
     const user = useSelector((state: RootState) => {return state.auth.user}) as User
 
@@ -20,6 +22,11 @@ const EditAcademySchedule = () => {
         console.log('getting academy details for schedule')
         getADetails()
     }, [slug])
+
+    useEffect(function () {
+        if (academyId)
+            getClassList(academyId)
+    }, [classChanges])
 
     const getADetails = async () => {
         if (slug) {
@@ -30,13 +37,16 @@ const EditAcademySchedule = () => {
             console.log(academyId)
             if (details._id) {
                 console.log('getting academy classes', academyId)
-                const class_list = await getAcademyClasses(details._id) as AcademyClass[]
-                console.log('class list', class_list)
-                setAllClassList(class_list)
+                await getClassList(details._id)
             }
         }
     }
 
+    const getClassList = async (a_id: string) => {
+        const class_list = await getAcademyClasses(a_id) as AcademyClass[]
+        console.log('class list', class_list)
+        setAllClassList(class_list)
+    }
     const addClassToList = (new_class: AcademyClass, isEdit: boolean = false) => {
         if (isEdit) {
             const updated_classes = allClassList.map((c) => {
@@ -59,13 +69,34 @@ const EditAcademySchedule = () => {
         setAllClassList(updated_classes)
     }
 
+    const changeFocus = (event: React.SyntheticEvent, focus: string) => {
+        setEditFocus(focus)
+    }
+
+    const classUpdated = () => {
+        setClassChanges(classChanges + 1)
+    }
+
     return (
         <Box>
-            <Stack spacing={3} sx={{width: '95%'}}>
-                
-                <AddClassForm academy_id={academyId} addNewClass={addClassToList}></AddClassForm>
-                <AcademyClassList academy_class_list={allClassList} academy_id={academyId} update={addClassToList} deleteClass={removeClassFromList}></AcademyClassList>
-            </Stack>
+            <Tabs
+                value={editFocus}
+                onChange={changeFocus}>
+                <Tab value="schedule" label="Schedule" />
+                <Tab value="classes" label="Classes" />
+            </Tabs>
+            <div role="tabpanel" hidden={editFocus !== 'schedule'} id="tab-scheulde">
+                <Stack spacing={3} sx={{width: '95%'}}>
+                    <AddEditSchedule class_list={allClassList} user={user} update_class={classUpdated} />
+                </Stack>
+            </div>
+            <div role="tabpanel" hidden={editFocus !== 'classes'} id="tab-classes">
+                <Stack spacing={3} sx={{width: '95%'}} >
+                    
+                    <AddClassForm academy_id={academyId} addNewClass={addClassToList}></AddClassForm>
+                    <AcademyClassList academy_class_list={allClassList} academy_id={academyId} update={addClassToList} deleteClass={removeClassFromList} edit={true}></AcademyClassList>
+                </Stack>
+            </div>
         </Box>
     )
 }

@@ -1,6 +1,6 @@
 import { ChangeEvent, FC, useEffect, useState } from "react"
 import { Academy, User } from "../../utils/types_interfaces"
-import { Backdrop, Button, CircularProgress, Grid, Stack, TextField } from "@mui/material"
+import { Backdrop, Button, CircularProgress, FormControlLabel, FormGroup, Grid, Stack, Switch, TextField } from "@mui/material"
 import SlotCard from "../template/card"
 import { RootState } from "../../store"
 import { useSelector } from "react-redux"
@@ -25,7 +25,8 @@ const defaultAcademyForm: Academy = {
     owner: {} as User,
     head_instructor: '',
     head_instructor_id: undefined,
-    private: false
+    private: false,
+    website: ''
 }
 
 type FormProps = {
@@ -72,6 +73,9 @@ const AcademyDetailForm: FC<FormProps> = (props) => {
         const {name, value} = event.target
         if (['street', 'city', 'state', 'zip_code', 'country'].includes(name)) {
             setAcademyForm({...academyForm, address: {...academyForm.address, [name]: value}})
+        } else if (name === 'private') {
+            const event_private = event as ChangeEvent<HTMLInputElement>
+            setAcademyForm({...academyForm, private: event_private.target.checked})
         } else {
             setAcademyForm({...academyForm, [name]: value})
         }
@@ -118,6 +122,9 @@ const AcademyDetailForm: FC<FormProps> = (props) => {
                     <TextField fullWidth label="Affiliation" name="affiliation" value={academyForm.affiliation} onChange={(e) => {handleInputChange(e)}}></TextField>
                 </Grid>
                 <Grid item xs={12}>
+                    <TextField fullWidth label="Website" name="website" value={academyForm.website} onChange={(e) => {handleInputChange(e)}}></TextField>
+                </Grid>
+                <Grid item xs={12}>
                     <TextField fullWidth label="Address" name="street" value={academyForm.address.street} onChange={(e) => {handleInputChange(e)}}></TextField>
                 </Grid>
                 <Grid item xs={4}>
@@ -144,7 +151,11 @@ const AcademyDetailForm: FC<FormProps> = (props) => {
                 <Grid item xs={6}>
                     <TextField fullWidth label="Head Instructor" name="head_instructor" value={academyForm.head_instructor} onChange={(e) => {handleInputChange(e)}}></TextField>
                 </Grid>
-                <Grid item xs={6}></Grid>
+                <Grid item xs={6}>
+                    <FormGroup>
+                        <FormControlLabel control={<Switch checked={academyForm.private} name="private" onChange={(e) => {handleInputChange(e)}} />} label="Make it Private" />
+                    </FormGroup>
+                </Grid>
                 <Grid item xs={6}>
                     <Grid container spacing={2}>
                         {!isEdit && 

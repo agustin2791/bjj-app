@@ -1,3 +1,5 @@
+import { Moment } from "moment"
+
 export interface User {
     _id?: number,
     username?: string,
@@ -92,15 +94,26 @@ export interface AcademyClass {
 export interface Schedule {
     _id?: string,
     name: string,
-    classes: [AcadamyClassSchedule]
+    classes: [AcademyClassSchedule]
 }
 
-export interface AcadamyClassSchedule {
+export interface AcademyClassSchedule {
+    _id?: string,
+    academy_class: AcademyClass,
+    schedule: [
+        {
+            day: string, 
+            start: string | Moment, 
+            end: string | Moment, 
+            instructor: string, 
+            instructor_id?: User}
+    ] | []
+}
+
+export interface AcademyInstructor {
     _id?: string,
     name: string,
-    description: string,
-    start: string,
-    end: string,
-    instructor: string,
-    instructor_id?: User
+    belt_rank: string,
+    classes: AcademyClass[],
+    user?: User
 }
