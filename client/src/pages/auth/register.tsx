@@ -2,13 +2,17 @@ import { useState, ChangeEvent, FormEvent } from 'react';
 import { ReactComponent as Logo } from "../../logo.svg";
 import { registerUser } from '../../utils/data-utils';
 import FormInput from '../../components/form-input/form-input';
+import { Button, Stack, TextField, Typography } from '@mui/material';
+import SlotCard from '../../components/template/card';
+import { useNavigate } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
+import { update_user } from '../../store/auth';
+import { User } from '../../utils/types_interfaces';
 
-type User = {
-    username: string,
-    email: string,
-    password: string
-}
-
+type LoginReturn = {
+    token: string,
+    user: User
+  }
 const defaultFormFields = {
     username: '',
     email: '',
@@ -19,6 +23,8 @@ const Registration = () => {
     // hooks
     const [user, setUser] = useState<User | null>()
     const [formFields, setFormFields] = useState(defaultFormFields)
+    const navigate = useNavigate()
+    const dispatch = useDispatch()
     const { username, email, password } = formFields
 
     const resetFormFields = () => {
@@ -38,13 +44,16 @@ const Registration = () => {
 
         try {
             // make api call
-            const res: User = await registerUser(
+            const res: LoginReturn = await registerUser(
                 'http://localhost:8000/auth/register', username, email, password
             )
-            setUser(res);
+            console.log('res')
+            dispatch(update_user(res.user))
+            setUser(res.user);
             resetFormFields()
+            navigate('/')
         } catch (error) {
-            alert('User Sign In failed')
+            alert('User Registration failed')
         }
     };
     const reload = () => {
@@ -53,47 +62,47 @@ const Registration = () => {
     };
 
     return (
-        <div className='App-header'>
-            <h1>
-                { user && `Welcome ${user.username}` }
-            </h1>
-            <div className="card">
-                <Logo className="logo" />
-                <h2>Sign In</h2>
+        <Stack className='auth_container'>
+            <SlotCard>
+                <Typography variant="h3" sx={{textAlign: 'center'}}>Register</Typography><br />
                 <form onSubmit={handleSubmit}>
-                    <FormInput
+                    <TextField
                         label="Username"
                         type="username"
                         required
+                        fullWidth
                         name="username"
                         value={username}
                         onChange={handleChange}
-                    />
-                    <FormInput
+                    /><br /><br />
+                    <TextField
                         label="Email"
                         type="email"
                         required
+                        fullWidth
                         name="email"
                         value={email}
                         onChange={handleChange}
-                    />
-                    <FormInput
+                    /><br /><br />
+                    <TextField
                         label="Password"
                         type='password'
                         required
+                        fullWidth
                         name='password'
                         value={password}
                         onChange={handleChange}
                     />
                     <div className="button-group">
-                    <button type="submit">Sign In</button>
-                    <span>
-                        <button type="button" onClick={reload}>Clear</button>
-                    </span>
+                        <Button type="submit" variant="contained">Register</Button>
+                        <Button type="button" onClick={reload}>Clear</Button>
+                    </div>
+                    <div className="login-disclaimer">
+                        Already have an account? <a href="/login">Login here</a>
                     </div>
                 </form>
-            </div>
-      </div>
+            </SlotCard>
+      </Stack>
     )
 }
 

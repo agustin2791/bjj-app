@@ -4,14 +4,15 @@ import { redirect, useLocation, useNavigate } from "react-router-dom";
 
 type nav_links = {
     label: string,
-    path: string
+    path: string,
+    contains: string
 }
 
 const links: nav_links[] = [
-    {label: 'Posts', path: '/'},
-    {label: 'Academies', path: '/academy/find'},
-    {label: 'Tournaments', path: '/tournaments'},
-    {label: 'Events', path: '/events'}
+    {label: 'Posts', path: '/', contains: 'post'},
+    {label: 'Academies', path: '/academy', contains: 'academy'},
+    {label: 'Tournaments', path: '/tournaments', contains: 'tournaments'},
+    {label: 'Events', path: '/events', contains: 'events'}
 ]
 
 const TopBar = () => {
@@ -41,9 +42,10 @@ const TopBar = () => {
                         key={n.label}
                         color="navBtn" 
                         onClick={() => {navigateTo(n.path)}} 
-                        variant={location.pathname === n.path ? 'outlined' : n.path === '/' && location.pathname.includes('/posts') ? 'outlined' : location.pathname.includes(n.path) && n.path !== '/' ? 'outlined' : 'text'}>{n.label}</Button>
+                        variant={location.pathname === '/' && n.contains === 'post' ? 'outlined' : location.pathname.includes(n.contains) ? 'outlined' : 'text'}>{n.label}</Button>
                 )
             })}
+            
         </Box>
     )
 }

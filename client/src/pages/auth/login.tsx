@@ -1,9 +1,10 @@
 import { useState, ChangeEvent, FormEvent } from 'react';
-import { ReactComponent as Logo } from "./../../logo.svg";
 import { getData } from './../../utils/data-utils';
 import FormInput from './../../components/form-input/form-input';
 import { useDispatch } from 'react-redux';
 import { update_user } from '../../store/auth';
+import { Grid, Stack, Paper, TextField, Button, Typography } from '@mui/material';
+import { useNavigate } from 'react-router-dom';
 
 // import './Login.css';
 
@@ -26,6 +27,7 @@ const Login = () => {
   // hooks
     const [user, setUser] = useState<User | null>()
     const [formFields, setFormFields] = useState(defaultFormFields)
+    const navigate = useNavigate()
     const { username, password } = formFields
     const dispatch = useDispatch();
 
@@ -53,6 +55,7 @@ const Login = () => {
         setUser(res.user);
         resetFormFields()
         localStorage.setItem('accessToken', res.token)
+        navigate('/')
       } catch (error) {
         alert('User Sign In failed')
       }
@@ -64,39 +67,46 @@ const Login = () => {
     };
 
     return (
-      <div className='App-header'>
-        <h1>
-          { user && `Welcome ${user.name}` }
-        </h1>
-        <div className="card">
-          <Logo className="logo" />
-          <h2>Sign In</h2>
-          <form onSubmit={(e) => handleSubmit(e)}>
-            <FormInput
-              label="username"
-              type="text"
-              required
-              name="username"
-              value={username}
-              onChange={handleChange}
-            />
-            <FormInput
-              label="Password"
-              type='password'
-              required
-              name='password'
-              value={password}
-              onChange={handleChange}
-            />
-            <div className="button-group">
-              <button type="submit">Sign In</button>
-              <span>
-                <button type="button" onClick={reload}>Clear</button>
-              </span>
-            </div>
-          </form>
-        </div>
-      </div>
+      <Stack className='auth_container'>
+        <Paper sx={{padding: '20px'}}>
+          <Grid container className="card">
+            <Grid item sm={12}>
+              <Typography variant="h3" sx={{textAlign: 'center'}}>Login</Typography>
+              <br />
+              <form onSubmit={(e) => handleSubmit(e)}>
+                <TextField
+                  label="username"
+                  type="text"
+                  required
+                  name="username"
+                  value={username}
+                  fullWidth
+                  onChange={handleChange}
+                />
+                <br /><br />
+                <TextField
+                  label="Password"
+                  type='password'
+                  required
+                  name='password'
+                  value={password}
+                  fullWidth
+                  onChange={handleChange}
+                />
+                <div className="button-group">
+                  <Button type="submit" variant="contained">Sign In</Button>
+                  {/* <Button type="button"  variant="contained" onClick={reload}>Clear</Button> */}
+                </div>
+                <div className="login-disclaimer">
+                  Not Registered? <a href="/register">Register here</a>
+                </div>
+              </form>
+            </Grid>
+            
+          </Grid>
+        </Paper>
+        
+      </Stack>
     );
 }
 

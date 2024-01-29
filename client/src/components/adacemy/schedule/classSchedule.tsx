@@ -108,7 +108,8 @@ const ClassSchedule: FC<ClassScheduleProps> = (props) => {
             s.start = moment(s.start).format('HH:mm')
             s.end = moment(s.end).format('HH:mm')
         })
-        await updateAcademyClassSchedule(details, user)
+        if (!classDetails) return
+        await updateAcademyClassSchedule(classDetails.academy_class.academy, details, user)
         await getClassSchedule()
         updated_class()
     }

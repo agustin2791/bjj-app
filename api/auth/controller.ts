@@ -26,6 +26,10 @@ module.exports = app.post('/register', async (req: Request, res: Response) => {
             password: password
         });
         await newUser.save()
+        const access_token = await SignAccessToken(username, password)
+        const access_refresh_token = await SignRefreshToken(username, password)
+        console.log(newUser)
+        return res.status(200).json({user: newUser, token: access_token, refresh_token: access_refresh_token})
     } catch (error) {
         console.log(error)
         return res.status(404).send('Cannot register new user')

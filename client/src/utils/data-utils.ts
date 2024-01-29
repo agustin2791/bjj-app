@@ -29,13 +29,20 @@ export const registerUser = async <T>(
     password: string
 )
 : Promise<T> => {
-    const res = await fetch(url, {
-        method: 'Post',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({username, email, password})
-    });
+    return await api.post(url,
+        {username, email, password}
+    ).then((res: AxiosResponse) => {
+        const body = res.data
+        console.log('login body ', body)
+        localStorage.setItem('accessToken', body.token)
+        localStorage.setItem('refreshToken', body.refresh_token)
 
-    return await res.json()
+        let user = body.user
+        delete user.password
+        localStorage.setItem('user', JSON.stringify(user))
+        return body
+    }).catch((e: AxiosError)=> {
+        console.log(e)
+        throw e
+    });
 }

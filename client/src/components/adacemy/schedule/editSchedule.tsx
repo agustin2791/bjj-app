@@ -31,7 +31,7 @@ const EditAcademySchedule = () => {
     const getADetails = async () => {
         if (slug) {
             console.log(slug)
-            const details = await getAcademyDetails(slug, user) as Academy
+            const details = await getAcademyDetails(slug) as Academy
             console.log('academy details', details)
             setAcademyId(details._id ? details._id : '')
             console.log(academyId)

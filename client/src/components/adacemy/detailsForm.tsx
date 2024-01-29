@@ -96,7 +96,7 @@ const AcademyDetailForm: FC<FormProps> = (props) => {
             window.location.href = `/academy/edit/${slug}`
         } else {
             setLoading(true)
-            const academy_data = await updateAcademyDetails(academyForm)
+            const academy_data = await updateAcademyDetails(academyForm, user)
             setLoading(false)
         }
     }

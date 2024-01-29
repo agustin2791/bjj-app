@@ -30,20 +30,20 @@ const EditInstructors:FC<editInstructorsParams> = (params) => {
 
     const addInstructor = async (instructor: AcademyInstructor) => {
         const instructor_bus = {...instructor, academy: academy_id, academy_classes: instructor.classes.map(c => {return c._id})}
-        await createAcademyInstructor(instructor_bus, user)
+        await createAcademyInstructor(academy_id, instructor_bus, user)
         await getInstructors(academy_id)
     }
 
     const updateInstructor = async (instructor: AcademyInstructor) => {
         const instructor_bus = {...instructor, academy: academy_id, academy_classes: instructor.classes.map(c => {return c._id})}
-        await updateAcademyInstructor(instructor_bus, user)
+        await updateAcademyInstructor(academy_id, instructor_bus, user)
         await getInstructors(academy_id)
         finishEditing()
     }
 
     const removeInstructor = async () => {
         if (focusInstructor) {
-            await deleteAcademyInstructor(focusInstructor._id, user)
+            await deleteAcademyInstructor(academy_id, focusInstructor._id, user)
             await getInstructors(academy_id)
             finishEditing()
         }

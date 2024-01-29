@@ -5,14 +5,13 @@ import { useEffect, useState } from "react";
 import { getAcademyClassSchedule, getAcademyClasses, getAcademyDetails, getAcademyFullSchedule, getAcademyInstructors } from "../../utils/academy-utils";
 import { useSelector } from "react-redux";
 import { RootState } from "../../store/index";
-import { Academy, AcademyClass, AcademyClassSchedule, AcademyInstructor, User } from "../../utils/types_interfaces";
+import { Academy, AcademyClass, AcademyClassSchedule, AcademyInstructor } from "../../utils/types_interfaces";
 import ScheduleWeekView from "../../components/adacemy/schedule/weekView";
 import AcademyClassList from "../../components/adacemy/schedule/classList";
 import InstructorList from "../../components/adacemy/instructors/listInstructors";
 
 const AcademyDetails = () => {
     const {slug} = useParams()
-    const user = useSelector((state: RootState) => {return state.auth.user}) as User
     const [academy, setAcademy] = useState<Academy>()
     const [allClasses, setAllClasses] = useState<AcademyClass[]>()
     const [fullSchedule, setFullSchedule] = useState<AcademyClassSchedule[]>()
@@ -27,7 +26,8 @@ const AcademyDetails = () => {
     const getAcademy = async () => {
         if (slug) {
             console.log(slug)
-            const details = await getAcademyDetails(slug, user) as Academy
+            const details = await getAcademyDetails(slug) as Academy
+            console.log(details)
             setAcademy(details)
             if (details._id){
                 await getClasses(details._id)

@@ -102,7 +102,7 @@ module.exports = app.post('/get_academy_classes', async (req: Request, res: Resp
         if (academy_id.length <= 0) return res.status(404).json([])
         // const academy_classes_query = AcademyClass.where({academy_id})
         const academy_classes = await AcademyClass.find({academy: {_id: academy_id}})
-
+        
         return res.status(200).json(academy_classes)
     } catch (e) {
         console.log(e)

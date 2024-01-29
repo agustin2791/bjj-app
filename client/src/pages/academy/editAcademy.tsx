@@ -1,5 +1,5 @@
 import { Drawer, Grid, List, ListItem, Tab, Tabs } from "@mui/material";
-import { redirect, useParams } from "react-router-dom";
+import { redirect, useLocation, useNavigate, useParams } from "react-router-dom";
 import AcademyDetailForm from "../../components/adacemy/detailsForm";
 import { useEffect, useState } from "react";
 import { Academy, User } from "../../utils/types_interfaces";
@@ -8,6 +8,7 @@ import { RootState } from "../../store";
 import { getAcademyDetails } from "../../utils/academy-utils";
 import EditInstructors from "../../components/adacemy/instructors/editInstructors";
 import EditAcademySchedule from "../../components/adacemy/schedule/editSchedule";
+import academy from "../../store/academy";
 
 const editFocusOption = [
     {label: 'Details', value: 'details'},
@@ -20,9 +21,13 @@ const EditAcademy = () => {
     const {slug} = useParams()
     const [academyInfo, setAcademyInfo] = useState<Academy>()
     const [editFocus, setEditFocus] = useState('details')
+    const navigate = useNavigate()
     const user = useSelector((state: RootState) => {return state.auth.user}) as User
 
     useEffect(function () {
+        if (!user._id) {
+            return navigate('/academy')
+        }
         if (slug)
             getAcademyInfo()
     }, [slug])
@@ -30,7 +35,10 @@ const EditAcademy = () => {
     const getAcademyInfo = async () => {
         // get info for academy to edit
         if (slug) {
-            const academyData = await getAcademyDetails(slug, user) as Academy
+            const academyData = await getAcademyDetails(slug) as Academy
+            if (user._id && !academyData.admin?.map(a => {return a._id}).includes(user?._id)) {
+                navigate('/academy')
+            }
             setAcademyInfo(academyData)
         } else {
             redirect('/academy/create')

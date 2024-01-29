@@ -4,7 +4,7 @@ import axios from "axios";
 import path from "path";
 import cors from "cors";
 import {connect} from './mongodb';
-import { accessMiddleware } from "./middleware";
+import { academyMiddleware, accessMiddleware } from "./middleware";
 require('dotenv').config();
 const auth = require('./api/auth/controller')
 const forum = require('./api/forum/controller')
@@ -28,7 +28,7 @@ res.send('Hello World From the Typescript Server!')
 // API Calls
 app.use('/auth', auth)
 app.use('/forum', accessMiddleware, forum)
-app.use('/academy', accessMiddleware, academy)
+app.use('/academy', academyMiddleware, academy)
 app.use('/maps', maps)
 app.use('/google-map-search', async (req: Request, res: Response) => {
 

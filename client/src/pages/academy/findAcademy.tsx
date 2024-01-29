@@ -24,6 +24,7 @@ const FindAcademy = () => {
     const [filteredFound, setFilteredFound] = useState<any[]>([])
     const [hasFocus, setHasFocus] = useState(false)
     const [findInMap, setFindInMap] = useState<{name: string, address: string}>()
+    const [hasMap, setHasMap] = useState(false)
 
     useEffect(() => {
         if (academyFocus !== defaultFocus) setHasFocus(true)
@@ -39,6 +40,7 @@ const FindAcademy = () => {
         console.log('setting academies')
         setAcademiesFound(academy_list)
         filterAcademies()
+        setHasMap(academy_list.length > 0)
     }
 
     const filterAcademies = () => {
@@ -64,15 +66,18 @@ const FindAcademy = () => {
     return (
         <Box sx={{height: 'calc(100% - 95px)', }}>
             <Grid container sx={{height: "100%"}} alignItems={{sm: 'stretch'}} spacing={2}>
-                <Grid item sm={12} md={6}>
+                <Grid item sx={{padding: '20px'}} sm={12} md={hasMap ? 6 : 12}>
+                    {!hasMap && 
+                    <Typography variant='h4'>Search for an Academy</Typography>}
                     <MapView multiple={true} showDetails={FocusOnAcademy} pushAcademyList={setFoundAcademies} selectAcademyByAddress={findInMap} />
                 </Grid>
+                {hasMap && 
                 <Grid item sm={12} alignSelf={'center'} md={6} sx={{overflow: 'hidden', height: '100%'}}>
                     <Stack spacing={3} sx={{height: '100%'}}>
-                        <Paper sx={{overflow: 'auto', height: '50%'}}>
+                        <Paper sx={{overflow: 'auto', height: hasFocus ? '70%' : '0%'}}>
                             {hasFocus && <FindDetails {...academyFocus} />}
                         </Paper>
-                        <Paper sx={{overflow: 'auto', height: '50%'}}>
+                        <Paper sx={{overflow: 'auto', height: hasFocus ? '30%' : '100%'}}>
                         <List className="academy-list-container" >
                             {academiesFound.map(f => {
                                 return (
@@ -84,7 +89,7 @@ const FindAcademy = () => {
                     </Stack>
                     
                     
-                </Grid>
+                </Grid>}
             </Grid>
         </Box>
     )

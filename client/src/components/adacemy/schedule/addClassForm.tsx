@@ -40,7 +40,7 @@ const AddClassForm: FC<classFormProps> = (props) => {
 
     const submitNewClass = async () => {
         const class_payload: AcademyClass = {...classForm, academy: academy_id}
-        const new_class = await createAcademyClass(class_payload, academy_id) as AcademyClass
+        const new_class = await createAcademyClass(class_payload, academy_id, user) as AcademyClass
         console.log('return new class', new_class)
         addNewClass(new_class)
         setClassForm(defaultClassForm)
