@@ -4,11 +4,14 @@ import mongoose, { Model, Document, Schema } from 'mongoose';
 interface IProfile {
     id: number,
     name: string,
+    image: any,
     user: {type: Schema.Types.ObjectId, ref: 'User'},
     belt_rank: {type: Schema.Types.ObjectId, ref: 'BeltRank'},
     affiliation: string,
-    acadamy: { type: Schema.Types.ObjectId, ref: 'Acadamy'},
-    location: string   
+    academy: { type: Schema.Types.ObjectId, ref: 'Academy'},
+    location: string,
+    academy_subs: [{type: Schema.Types.ObjectId, ref: 'Academy'}],
+    channel_subs: [{type: Schema.Types.ObjectId, ref: 'Channel'}]
 }
 
 type ProfileModel = Model<IProfile, {}, {}>
@@ -21,6 +24,7 @@ const profileSchema = new Schema<IProfile>({
         type: Schema.Types.ObjectId,
         required: true
     },
+    image: String,
     belt_rank: {
         type: Schema.Types.ObjectId,
         ref: 'BeltRank'
@@ -28,14 +32,20 @@ const profileSchema = new Schema<IProfile>({
     affiliation: {
         type: String
     },
-    acadamy: {
-        type: Schema.Types.ObjectId
+    academy: {
+        type: Schema.Types.ObjectId,
+        ref: 'Academy'
     },
-    location: {type: String}
+    location: {type: String},
+    academy_subs: [
+        {type: Schema.Types.ObjectId, ref: 'Academy'}
+    ],
+    channel_subs: [
+        {type: Schema.Types.ObjectId, ref: 'Channel'}
+    ]
 })
 
-const Profile = mongoose.model<IProfile>('Profile', profileSchema)
-module.exports = Profile;
+export const Profile = mongoose.model<IProfile>('Profile', profileSchema)
 
 // BELT RANK
 interface IBeltRank {
@@ -50,5 +60,5 @@ const beltRankSchema = new Schema<IBeltRank>({
     stripes: {type: Number, required: true, default: 0}
 })
 
-const BeltRank = mongoose.model<IBeltRank>('BeltRank', beltRankSchema)
-module.exports = BeltRank
+export const BeltRank = mongoose.model<IBeltRank>('BeltRank', beltRankSchema)
+

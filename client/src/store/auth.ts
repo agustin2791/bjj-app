@@ -3,13 +3,15 @@ import { createSlice } from "@reduxjs/toolkit"
 interface authState {
     user: Object,
     is_logged_in: boolean,
-    last_login: string
+    last_login: string,
+    profile: Object
 }
 
 const initialState: authState = {
     user: {},
     is_logged_in: false,
-    last_login: ''
+    last_login: '',
+    profile: {}
 }
 
 const authReducer = createSlice({
@@ -26,6 +28,9 @@ const authReducer = createSlice({
             // localStorage.setItem('auth', JSON.stringify(state))
 
         },
+        set_profile: (state, action) => {
+            state.profile = action.payload
+        },
         logout: (state) => {
             state.user = initialState.user
             state.is_logged_in = initialState.is_logged_in
@@ -35,5 +40,5 @@ const authReducer = createSlice({
     }
 })
 
-export const { update_user, logout } = authReducer.actions
+export const { update_user, logout, set_profile } = authReducer.actions
 export default authReducer.reducer

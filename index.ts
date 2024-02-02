@@ -7,6 +7,7 @@ import {connect} from './mongodb';
 import { academyMiddleware, accessMiddleware } from "./middleware";
 require('dotenv').config();
 const auth = require('./api/auth/controller')
+const profile = require('./api/profile/controller')
 const forum = require('./api/forum/controller')
 const academy = require('./api/academy/controller')
 const maps = require('./api/mapController')
@@ -27,6 +28,7 @@ res.send('Hello World From the Typescript Server!')
 
 // API Calls
 app.use('/auth', auth)
+app.use('/profile', accessMiddleware, profile)
 app.use('/forum', accessMiddleware, forum)
 app.use('/academy', academyMiddleware, academy)
 app.use('/maps', maps)

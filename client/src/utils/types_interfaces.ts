@@ -8,6 +8,19 @@ export interface User {
     createdAt: Date
 }
 
+export interface Profile {
+    id?: number,
+    name: string,
+    image?: any,
+    user: User,
+    belt_rank?: string,
+    affiliation?: string,
+    academy?: Academy,
+    location?: string,
+    academy_subs?: [string],
+    channel_subs?: [string]
+}
+
 export interface ForumEntry {
     _id: number,
     title: string,
