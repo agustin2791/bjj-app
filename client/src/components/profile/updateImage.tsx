@@ -37,6 +37,7 @@ const ProfileUpdateImage:FC<UpdateImageProps> = (props) => {
         console.log(formData)
         const data = await updateProfileImage(formData)
         imageUpdated()
+        setNewImage(undefined)
     }
 
     const addImage = (event: ChangeEvent<HTMLInputElement>) => {

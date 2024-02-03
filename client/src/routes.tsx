@@ -28,7 +28,7 @@ const AppRoute = () => {
                 </Route>
                 <Route path="/login" element={<Login />}></Route>
                 <Route path='/register' element={<Registration />}></Route>
-                <Route path='/profile/:username' element={<EditUserProfile />}></Route>
+                <Route path='/profile/edit/:username' element={<EditUserProfile />}></Route>
                 <Route path='/academy' element={<AcademyHome />}></Route>
                 <Route path="/academy/create" element={<NewAcademy />}></Route>
                 <Route path="/academy/:slug" element={<AcademyDetails />}></Route>

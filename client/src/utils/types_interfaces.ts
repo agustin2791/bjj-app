@@ -17,8 +17,8 @@ export interface Profile {
     affiliation?: string,
     academy?: Academy,
     location?: string,
-    academy_subs?: [string],
-    channel_subs?: [string]
+    academy_subs?: Academy[],
+    channel_subs?: Channel[]
 }
 
 export interface ForumEntry {

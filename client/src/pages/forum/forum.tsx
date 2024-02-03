@@ -1,5 +1,5 @@
 import { useState, ChangeEvent, FormEvent, useEffect } from 'react';
-import { Stack, Button, Modal, Box} from '@mui/material'
+import { Stack, Button, Modal, Box, Fab} from '@mui/material'
 import NewPost from './newPostForm';
 import { newPost as postApi, getAllPosts, VoteAPI } from '../../utils/forum-utils';
 import { ForumEntry, ForumEntryBus, Comment, User } from '../../utils/types_interfaces';
@@ -9,6 +9,7 @@ import { useSelector } from 'react-redux';
 import { RootState } from '../../store';
 import { useParams, useSearchParams } from 'react-router-dom';
 import SlotModal from '../../components/template/modal';
+import { Add } from '@mui/icons-material';
 
 
 const defaultPostForm = {
@@ -41,6 +42,12 @@ const blankEntry = (): ForumEntry => {
     }
 }
 
+const fabStyle = {
+    position: 'absolute',
+    bottom: 16,
+    right: 16,
+};
+
 const modalStyle = {
     position: 'absolute' as 'absolute',
     top: '50%',
@@ -67,6 +74,7 @@ const Forum = () => {
     const [viewingEntry, setViewingEntry] = useState(false);
     const [newPost, setNewPost] = useState(defaultPostForm)
     const [initForumCall, setInitForumCall] = useState(false)
+    const [extendAddBtn, setExtendAddBtn] = useState(false)
     const user = useSelector((state: RootState) => state.auth.user) as User
     const is_logged_in: boolean = useSelector((state: RootState) => state.auth.is_logged_in)
 
@@ -184,8 +192,23 @@ const Forum = () => {
         <Stack sx={{margin: '20px auto', maxWidth: '80%'}}>
             <h2>Welcome {user.username ? user.username : ''}</h2>
             {is_logged_in && 
-                <Button className="create-post-button" variant="contained" onClick={() => {toggleNewEntryPost()}}>Create A Post</Button>}
-             
+                <Fab sx={fabStyle} 
+                    className="create-post-button" 
+                    onMouseOver={() => {setExtendAddBtn(true)}}
+                    onMouseLeave={() => {setExtendAddBtn(false)}}
+                    size='medium'
+                    color='primary'
+                    variant={extendAddBtn ? 'extended' : 'circular'}
+                    onClick={() => {toggleNewEntryPost()}}>
+                        <Add />
+                        {extendAddBtn ? 'Create A Post' : ''}
+                    </Fab>}
+            {is_logged_in && channel &&
+                <Fab size='small' 
+                    variant='extended'
+                    color='info'
+                    sx={{maxWidth: '200px', position: 'absolute', top: '120px', right: '20px'}}>Subscribe</Fab>
+            }
             {is_logged_in &&
             <SlotModal
                 open={creatingNewEntry}
