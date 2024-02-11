@@ -2,9 +2,10 @@ import { useState, ChangeEvent, FormEvent } from 'react';
 import { getData } from './../../utils/data-utils';
 import FormInput from './../../components/form-input/form-input';
 import { useDispatch } from 'react-redux';
-import { update_user } from '../../store/auth';
+import { set_profile, update_user } from '../../store/auth';
 import { Grid, Stack, Paper, TextField, Button, Typography } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
+import { getProfile } from '../../utils/profile-utils';
 
 // import './Login.css';
 
@@ -55,6 +56,8 @@ const Login = () => {
         setUser(res.user);
         resetFormFields()
         localStorage.setItem('accessToken', res.token)
+        const profile = await getProfile(res.user.username)
+        dispatch(set_profile(profile))
         navigate('/')
       } catch (error) {
         alert('User Sign In failed')

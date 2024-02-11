@@ -6,6 +6,7 @@ import ReplyForm from './replyForm';
 import { VoteAPI, newComment } from '../../utils/forum-utils';
 import { ThumbDown, ThumbUp } from '@mui/icons-material';
 import { load as yt_loader } from 'youtube-iframe';
+import { Link } from 'react-router-dom';
 
 const YouTubeIframeLoader = require('youtube-iframe')
 // const tag = document.createElement('script')
@@ -74,7 +75,9 @@ const Post: FC<PostProps> = ({ entry, open, logged_in, closeModal, updateVote })
                 <Stack className="post-container" spacing={2}>
                     <ListItem>
                         <div className="post-title">{entry.title}</div>
-                        <div className="post-author">{typeof entry.author === 'string' ? entry.author : entry.author?.username}</div>
+                        <div className="post-author">
+                            user: <Link to={`/profile/${entry.author?.username}`}>{typeof entry.author === 'string' ? entry.author : entry.author?.username}</Link>
+                        </div>
                     </ListItem>
                     {entry.embedded && entry.embedded_type === 'video' &&
                     <ListItem>
@@ -126,7 +129,7 @@ const Post: FC<PostProps> = ({ entry, open, logged_in, closeModal, updateVote })
                             <br />
                         </>
                         }<br />
-                        {toggleReply && logged_in && <ReplyForm reply_to_id={entry._id} submitReply={addComment} focus="post" /> }
+                        {toggleReply && logged_in && <ReplyForm reply_to_id={entry?._id} submitReply={addComment} focus="post" /> }
                         {replyComments.length > 0 && replyComments.map((r: Comment, index) => {
                             return (
                                 <CommentReply key={index} 

@@ -3,6 +3,7 @@ import express, { Express, Request, Response } from "express";
 import type { IPost, IComment } from "./schema"
 import { Post, Comment, Channel, Vote } from "./schema"
 import { Schema, Types } from "mongoose";
+import { User } from "../auth/schema";
 const app:Express = express()
 
 const convertObjectID = (user_id: string) => {
@@ -26,7 +27,7 @@ module.exports = app.post('/posts', async (req: Request, res: Response) => {
         } else {
             query = Post.where({})
         }
-        const all_post_query = await query.find()
+        let all_post_query = await query.find()
             .populate('author')
             .populate({path: 'replies', populate: {path: 'author'}})
             .skip(start)
@@ -37,6 +38,38 @@ module.exports = app.post('/posts', async (req: Request, res: Response) => {
         console.log(e)
         return res.status(404).send('No Post found')
     } 
+})
+
+module.exports = app.post('/get_post_by_id', async (req: Request, res: Response) => {
+    await connect()
+    try {
+        const post_id = req.body.post_id
+        const post = await Post.findById(post_id)
+            .populate('author')
+            .populate({path: 'replies', populate: {path: 'author'}})
+
+        return res.status(200).json(post)
+    } catch (e) {
+        console.log(e)
+        return res.status(404).json({'error': true, 'message': 'No post found'})
+    }
+})
+
+module.exports = app.post('/get_user_posts', async (req: Request, res: Response) => {
+    await connect()
+    const username = req.body.username
+    try {
+        const user = await User.findOne({username: username})
+        const posts = await Post.find({author: user}).populate('channel')
+        const comments = await Comment.find({author: user})
+            .populate('post_id')
+            .populate({path: 'post_id', populate: {path: 'channel'}})
+
+        return res.status(200).json({'posts': posts, 'comments': comments})
+    } catch(e) {
+        console.error(e)
+        return res.status(404).json({'error': true, 'message': 'No user post'})
+    }
 })
 
 module.exports = app.post('/new_post', async (req: Request, res: Response) => {

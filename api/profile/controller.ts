@@ -1,10 +1,12 @@
 import { connect } from "../../mongodb";
 import express, { Express, Request, Response} from 'express'
 import { Profile } from "./schema";
-import { User } from "../auth/schema";
+import { IUser, User } from "../auth/schema";
 import { AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY } from "../../secrets";
 import multer from 'multer';
 import path from 'path'
+import { Channel, IChannel } from "../forum/schema";
+import mongoose, { mongo } from "mongoose";
 const app: Express = express()
 const storage = multer.memoryStorage()
 const upload = multer({storage: storage})
@@ -14,7 +16,7 @@ module.exports = app.post('/get_profile', async (req: Request, res: Response) =>
     try {
         const username = req.body.user
         const user = await User.findOne({username})
-        const profile_list = await Profile.find({user: user?._id})
+        const profile_list = await Profile.find({user: user?._id}).populate('channel_subs').exec()
         if (profile_list.length > 1) {
             for (let i = 1; i < profile_list.length; i++) {
                 await Profile.findByIdAndDelete(profile_list[i]._id)
@@ -30,6 +32,7 @@ module.exports = app.post('/get_profile', async (req: Request, res: Response) =>
                 user: user
             })
             await new_profile.save()
+            await new_profile.populate('channel_subs', 'academy_subs')
             return res.status(200).json(new_profile)
         }
     } catch (e) {
@@ -44,7 +47,7 @@ module.exports = app.post('/update_profile', async (req: Request, res: Response)
         const username = req.body.username
         const updates = req.body.updates
         const user = await User.findOne({username})
-        const profile = await Profile.findOneAndUpdate({user}, updates)
+        const profile = await Profile.findOneAndUpdate({user}, updates).populate('channel_subs')
 
         return res.status(200).json(profile)
     } catch (e) {
@@ -52,6 +55,34 @@ module.exports = app.post('/update_profile', async (req: Request, res: Response)
     }
 })
 
+interface subToggleBus {
+    channel: string,
+    profile_id: string
+}
+module.exports = app.post('/toggle_subscriptions', async (req: Request, res: Response) => {
+    await connect()
+    try {
+        const { channel, profile_id }: subToggleBus = req.body
+        
+        const channel_ = await Channel.findOne({slug: channel})
+        const profile = await Profile.findById(profile_id).populate('channel_subs')
+        if (!channel_) return res.status(403).send('No channel found')
+        console.log(profile?.channel_subs.includes(channel_._id), profile?.channel_subs)
+        const subs_flat = profile?.channel_subs.map((c) => {return c.id as string})
+        console.log(subs_flat?.includes(channel_.id as string), subs_flat, channel_.id)
+        if (subs_flat?.includes(channel_.id as string)) {
+            profile?.channel_subs.pull(channel_)
+            await profile?.save()
+        } else {
+            profile?.channel_subs.push(channel_)
+            await profile?.save()
+        }
+        return res.status(200).json(profile)
+    } catch (e) {
+        console.log(e)
+        return res.status(403).send('Nothing happened')
+    }
+})
 
 module.exports = app.post('/update_image', upload.single('image'), async (req: Request, res: Response) => {
     await connect()

@@ -102,6 +102,7 @@ const CommentSchema = new mongoose.Schema<IComment>({
 export const Comment = mongoose.model<IComment>('Comment', CommentSchema)
 
 type IChannel = {
+    _id?: string,
     category: string,
     slug: string,
     top: boolean

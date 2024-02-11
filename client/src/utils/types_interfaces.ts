@@ -9,7 +9,7 @@ export interface User {
 }
 
 export interface Profile {
-    id?: number,
+    _id?: string,
     name: string,
     image?: any,
     user: User,
@@ -22,7 +22,7 @@ export interface Profile {
 }
 
 export interface ForumEntry {
-    _id: number,
+    _id?: string,
     title: string,
     description: string,
     author?: User,
@@ -30,7 +30,7 @@ export interface ForumEntry {
     agree: number,
     disagree: number,
     created_at: Date,
-    channel: string,
+    channel: string | Channel,
     embedded?: boolean,
     embedded_type?: string,
     embedded_link?: string
@@ -50,14 +50,14 @@ export interface ForumEntryBus {
 }
 
 export interface Comment {
-    _id?: number | undefined,
+    _id?: string,
     comment: string,
     author?: User | string,
     agree: number,
     disagree: number,
     replies: Array<Comment>,
-    comment_to_id?: number,
-    post_id?: number,
+    comment_to_id?: string,
+    post_id?: string | ForumEntry,
     created_at?: Date | null
 }
 

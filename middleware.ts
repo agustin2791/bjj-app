@@ -17,7 +17,7 @@ const authorizeToken = (bearer_token: string): boolean => {
 export const accessMiddleware = (req: Request, res: Response, next: NextFunction) => {
     try  {
         console.log(req.url)
-        if (req.url.includes('/posts')) return next()
+        if (req.url.includes('/posts') || req.url.includes('/get')) return next()
         if (!req.headers['authorization']) return res.status(502).send('No auth token')
         let bearer_token = req.headers.authorization
         const has_access = authorizeToken(bearer_token)

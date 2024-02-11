@@ -1,4 +1,6 @@
 import mongoose, { Model, Document, Schema } from 'mongoose';
+import { IAcademy } from '../academy/schema';
+import { IChannel } from '../forum/schema';
 
 
 interface IProfile {
@@ -10,8 +12,8 @@ interface IProfile {
     affiliation: string,
     academy: { type: Schema.Types.ObjectId, ref: 'Academy'},
     location: string,
-    academy_subs: [{type: Schema.Types.ObjectId, ref: 'Academy'}],
-    channel_subs: [{type: Schema.Types.ObjectId, ref: 'Channel'}]
+    academy_subs: [IAcademy],
+    channel_subs: [string]
 }
 
 type ProfileModel = Model<IProfile, {}, {}>

@@ -14,6 +14,7 @@ import {
 import FindAcademy from "./pages/academy/findAcademy";
 import AcademyHome from "./pages/academy/academyHome";
 import EditUserProfile from "./pages/profile/editProfile";
+import UserProfile from "./pages/profile/profile";
 
 const AppRoute = () => {
     return (
@@ -28,6 +29,7 @@ const AppRoute = () => {
                 </Route>
                 <Route path="/login" element={<Login />}></Route>
                 <Route path='/register' element={<Registration />}></Route>
+                <Route path='/profile/:slug' element={<UserProfile />}></Route>
                 <Route path='/profile/edit/:username' element={<EditUserProfile />}></Route>
                 <Route path='/academy' element={<AcademyHome />}></Route>
                 <Route path="/academy/create" element={<NewAcademy />}></Route>

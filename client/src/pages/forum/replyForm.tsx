@@ -6,7 +6,7 @@ import { RootState } from '../../store'
 
 
 type replyFormProps = {
-    reply_to_id: number | undefined,
+    reply_to_id: string | undefined,
     submitReply: Function,
     focus: string
 }
@@ -39,10 +39,13 @@ const ReplyForm: FC<replyFormProps> = ({ reply_to_id, submitReply, focus }) => {
             disagree: 0,
             replies: reply_comments,
         }
-        if (focus === 'post') {
-            form_bus.post_id = reply_to_id
-        } else {
-            form_bus.comment_to_id = reply_to_id
+        if (reply_to_id === undefined) return
+        else {
+            if (focus === 'post') {
+                form_bus.post_id = reply_to_id
+            } else {
+                form_bus.comment_to_id = reply_to_id
+            }
         }
         submitReply(form_bus)
         setForm(defaultReplyInput)

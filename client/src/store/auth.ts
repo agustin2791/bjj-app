@@ -1,17 +1,18 @@
 import { createSlice } from "@reduxjs/toolkit"
+import { Profile } from "../utils/types_interfaces"
 
 interface authState {
     user: Object,
     is_logged_in: boolean,
     last_login: string,
-    profile: Object
+    profile: Profile
 }
 
 const initialState: authState = {
     user: {},
     is_logged_in: false,
     last_login: '',
-    profile: {}
+    profile: {} as Profile
 }
 
 const authReducer = createSlice({
@@ -29,7 +30,7 @@ const authReducer = createSlice({
 
         },
         set_profile: (state, action) => {
-            state.profile = action.payload
+            state.profile = action.payload as Profile
         },
         logout: (state) => {
             state.user = initialState.user

@@ -1,30 +1,44 @@
 import { ChangeEvent, useEffect, useState } from "react"
-import { useSelector } from "react-redux"
+import { useDispatch, useSelector } from "react-redux"
 import { RootState } from "../../store"
 import { Academy, Channel, Profile, User } from "../../utils/types_interfaces"
 import { Button, Grid, Stack, styled } from "@mui/material"
 import { CloudUpload } from "@mui/icons-material"
 import { getProfile, updateProfileDetails, updateProfileImage } from "../../utils/profile-utils"
-import { useParams } from "react-router-dom"
+import { useNavigate, useParams } from "react-router-dom"
 import ProfileUpdateImage from "../../components/profile/updateImage"
 import ProfileDetailsForm from "../../components/profile/detailsForm"
 import PostSubscriptionList from "../../components/profile/postSubscriptionList"
 import AcademySubscriptionList from "../../components/profile/academySubscriptionList"
+import { set_profile } from "../../store/auth"
 
 const EditUserProfile = () => {
     const [newImage, setNewImage] = useState<File>()
     const [userProfile, setUserProfile] = useState<Profile>()
     const { username } = useParams()
+    const navigate = useNavigate()
+    const dispatch = useDispatch()
     const user = useSelector((state: RootState) => { return state.auth.user}) as User
+    const profile = useSelector((state: RootState) => { return state.auth.profile }) as Profile
 
     useEffect(function() {
-        getUserProfile()
+        if (username !== user.username) {
+            navigate('/')
+        } else {
+            getUserProfile()
+        }
     }, [username])
 
+    useEffect(function() {
+        setUserProfile(profile)
+    }, [profile])
+
     const getUserProfile = async () => {
-        const profile = await getProfile(username as string)
-        console.log(profile)
-        setUserProfile(profile as Profile)
+        if (username){
+            const updated_profile = await getProfile(username)
+            dispatch(set_profile(updated_profile))
+        }
+
     }
 
     const updateSubscriptions = async (sub_id: string, type: string) => {
@@ -41,8 +55,8 @@ const EditUserProfile = () => {
             } else {return}
         } else {return}
         
-        await updateProfileDetails(username, userProfile)
-        await getUserProfile()
+        const profile_update = await updateProfileDetails(username, userProfile)
+        dispatch(set_profile(profile_update))
     }
 
     
@@ -62,8 +76,8 @@ const EditUserProfile = () => {
                     userProfile={userProfile ? userProfile : {} as Profile} />
                 <Grid container columnSpacing={2} alignItems={'stretch'}>
                     <Grid item sm={12} md={6}>
-                        {userProfile?.channel_subs && 
-                        <PostSubscriptionList subscriptions={userProfile?.channel_subs} updateSubs={updateSubscriptions}></PostSubscriptionList>}
+                        {profile?.channel_subs && 
+                        <PostSubscriptionList subscriptions={profile?.channel_subs} updateSubs={updateSubscriptions}></PostSubscriptionList>}
                     </Grid>
                     <Grid item sm={12} md={6}>
                         {userProfile?.academy_subs &&

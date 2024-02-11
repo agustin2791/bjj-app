@@ -17,6 +17,21 @@ export const getAllPosts = async <T>(
     return data
 }
 
+export const getPostById = async <T>(post_id: string): Promise<T> => {
+    const data = await api.post('/forum/get_post_by_id', {post_id})
+        .then((res) => {return res.data})
+        .catch((e) => {console.log(e)})
+    return data
+}
+
+export const getUserPosts = async <T>(username: string): Promise<T> => {
+    const data = await api.post('/forum/get_user_posts', {username})
+        .then(res => {return res.data})
+        .catch(e => {console.error(e)})
+
+    return data
+}
+
 export const newPost = async <T>(post: ForumEntryBus) : Promise<T> => {
     const data = await api.post('/forum/new_post', {post: post})
         .then(res => {return res.data})
@@ -119,5 +134,13 @@ export const getChannelsByChar = async <T>(
         return {'message': 'No channels found'}
     })
 
+    return data
+}
+
+export const toggleChannelSubscription = async <T>(channel: string, profile_id: string): Promise<T> => {
+    const data = await api.post('/profile/toggle_subscriptions', {channel, profile_id})
+        .then(res => {return res.data})
+        .catch(err => console.log(err))
+    
     return data
 }

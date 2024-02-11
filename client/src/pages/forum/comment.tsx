@@ -17,13 +17,13 @@ interface newCommentInput {
 }
 
 const CommentReply: FC<Comment> = ({
-        _id = 0, 
+        _id = '', 
         comment = '', 
         author = '', 
         replies = Array<Comment>, 
         agree = 0, 
         disagree = 0, 
-        comment_to_id = 0
+        comment_to_id = ''
     }) => {
     const [newReply, setNewReply] = useState<newCommentInput>()
     const [toggleReply, setToggleReply] = useState<boolean>(false)
@@ -84,7 +84,7 @@ const CommentReply: FC<Comment> = ({
                 {/* <Button variant="contained" onClick={() => toggleReplyForm()}>Reply dsdf</Button> */}
             </div>
             {toggleReply}
-            {toggleReply && <ReplyForm reply_to_id={_id} submitReply={addReply} focus='comment' /> }
+            {toggleReply && <ReplyForm reply_to_id={_id ? _id : ''} submitReply={addReply} focus='comment' /> }
             {allReplies.length > 0 && 
                 allReplies.map((r, index) => {
                     return (

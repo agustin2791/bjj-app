@@ -2,6 +2,12 @@
     width: 80%;
     margin: 10px auto;
     padding: 20px;
+    
+    overflow: auto;
+    .post-container {
+        max-height: calc(100vh - 60px);
+        overflow: auto;
+    }
     .post-title {
         font-size: 2.5rem;
         font-weight: 400;

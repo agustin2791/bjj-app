@@ -6,8 +6,9 @@ import { Button, Stack, TextField, Typography } from '@mui/material';
 import SlotCard from '../../components/template/card';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
-import { update_user } from '../../store/auth';
+import { set_profile, update_user } from '../../store/auth';
 import { User } from '../../utils/types_interfaces';
+import { getProfile } from '../../utils/profile-utils';
 
 type LoginReturn = {
     token: string,
@@ -50,6 +51,8 @@ const Registration = () => {
             console.log('res')
             dispatch(update_user(res.user))
             setUser(res.user);
+            let profile = await getProfile(res.user.username as string)
+            dispatch(set_profile(profile))
             resetFormFields()
             navigate('/')
         } catch (error) {

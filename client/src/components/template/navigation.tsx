@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { AppBar, Box, Drawer, IconButton, List, SwipeableDrawer, Toolbar, ListItem, Button, Modal } from "@mui/material";
 import { Menu } from '@mui/icons-material'
@@ -6,6 +6,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../store";
 import { logout } from "../../store/auth";
 import NewChannelForm from "../../pages/forum/newChannelForm";
+import { Channel } from "../../utils/types_interfaces";
 
 const navigation_links = [
     {
@@ -43,21 +44,29 @@ const Navigation = () => {
     const [nav, setNav] = useState(navigation_links)
     const [viewDrawer, setViewDrawer] = useState(true)
     const [newChannel, setNewChannel] = useState(false)
+    const [sortedChannels, setSortedChannels] = useState<Channel[]>()
     const navigate = useNavigate()
     const dispatch = useDispatch()
     const is_logged_in:boolean = useSelector((state: RootState) => state.auth.is_logged_in)
+    const profile = useSelector((state: RootState) => state.auth.profile)
 
-    const NavTo = (to:string) => {
-        // window.location.href = to
-        navigate(to, {replace: true})
-    }
+    useEffect(function() {
+        if (profile && profile.channel_subs) {
+            let sorted = [...profile.channel_subs]
+            sorted = sorted.sort((a, b) => {
+                if (a.category > b.category) {return 1}
+                else if (a.category < b.category) {return -1}
+                return 0
+            })
+            setSortedChannels(sorted)
+        }
+    }, [profile])
 
     const toggleNewChannel = () => {
         setNewChannel(!newChannel)
     }
-    const Logout = () => {
-        dispatch(logout())
-    }
+    
+    
     
     return (
         <Box className="box-item left-drawer">
@@ -75,10 +84,13 @@ const Navigation = () => {
                             <Link to={n.dir}>{n.name}</Link>
                         </ListItem>
                     ))}
-                    {is_logged_in && 
-                    <ListItem>
-                        <Button color="error" onClick={() => Logout()}>Logout</Button>
-                    </ListItem>}
+                    {sortedChannels && sortedChannels.map(s => {
+                        return (
+                            <ListItem key={s._id}>
+                                <Link to={`/posts/${s.slug}`}>{s.category}</Link>
+                            </ListItem>
+                        )
+                    })}
                 </List>
 
         </Box>

@@ -6,7 +6,7 @@ import { AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY } from "../../secrets";
 
 
 const app:Express = express()
-const User = require('./schema')
+const { User } = require('./schema')
 
 
 interface UserInput {
@@ -58,7 +58,7 @@ module.exports = app.post('/login', async (req: Request, res: Response) => {
         if (match) {
             const access_token = await SignAccessToken(username, password)
             const access_refresh_token = await SignRefreshToken(username, password)
-            console.log(login_user)
+            
             return res.status(200).json({user: login_user, token: access_token, refresh_token: access_refresh_token})
         }
         return res.status(404).send('User Not Found')

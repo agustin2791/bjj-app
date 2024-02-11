@@ -1,15 +1,16 @@
 import { useState, ChangeEvent, FormEvent, useEffect } from 'react';
 import { Stack, Button, Modal, Box, Fab} from '@mui/material'
 import NewPost from './newPostForm';
-import { newPost as postApi, getAllPosts, VoteAPI } from '../../utils/forum-utils';
-import { ForumEntry, ForumEntryBus, Comment, User } from '../../utils/types_interfaces';
+import { newPost as postApi, getAllPosts, VoteAPI, toggleChannelSubscription, getPostById } from '../../utils/forum-utils';
+import { ForumEntry, ForumEntryBus, Comment, User, Profile } from '../../utils/types_interfaces';
 import PostList from './postList';
 import Post from './post';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../../store';
 import { useParams, useSearchParams } from 'react-router-dom';
 import SlotModal from '../../components/template/modal';
 import { Add } from '@mui/icons-material';
+import { set_profile } from '../../store/auth';
 
 
 const defaultPostForm = {
@@ -27,7 +28,6 @@ const defaultPostForm = {
 const blankEntry = (): ForumEntry => {
     const replyArray = new Array<Comment>
     return {
-        _id: 0,
         title: '',
         author: undefined,
         replies: replyArray,
@@ -75,30 +75,48 @@ const Forum = () => {
     const [newPost, setNewPost] = useState(defaultPostForm)
     const [initForumCall, setInitForumCall] = useState(false)
     const [extendAddBtn, setExtendAddBtn] = useState(false)
+    const [isSubscribed, setIsSubscribed] = useState(false)
     const user = useSelector((state: RootState) => state.auth.user) as User
+    const profile = useSelector((state: RootState) => state.auth.profile) as Profile
     const is_logged_in: boolean = useSelector((state: RootState) => state.auth.is_logged_in)
+    const dispatch = useDispatch()
 
     useEffect(() => {
         getInitPosts()
     }, [channel])
+
+    useEffect(() => {
+        checkSub()
+    }, [profile])
+
+    useEffect(() => {
+        if (post_id)
+            viewEntry(post_id)
+    }, [forumList])
     
     const getInitPosts = async () => {
 
         let allPosts:ForumEntry[] = await getAllPosts(channel, post_id, 0, 10)
-        
+        checkSub()
 
         setForumList(allPosts)
         setInitForumCall(true)
         if (post_id) {
+            console.log('has post id')
             let has_post = false
-            allPosts.forEach((p) => {if (post_id === p?._id?.toString()) has_post = true})
+            allPosts.forEach((p) => {
+                if (post_id === p?._id?.toString()) has_post = true
+            })
             if (has_post) {
-                viewEntry(parseInt(post_id))
+                console.log('list has post')
+                viewEntry(post_id)
             }
             else {
-
+                console.log('list does not have post')
+                const f_post = await getPostById(post_id) as ForumEntry
+                setForumList([...forumList, f_post])
+                viewEntry(post_id)
             }
-
         }
     }
 
@@ -134,9 +152,10 @@ const Forum = () => {
         setNewPost({...newPost, [name]: name === 'embedded' ? value === 'true' : value})
     }
     
-    const viewEntry = (entry_id: number) => {
+    const viewEntry = (entry_id: string) => {
         console.log('viewing entry', entry_id)
         const entry = forumList.filter(f => {return f._id === entry_id})
+        console.log(entry)
         setFocusEntry(entry[0])
         setViewingEntry(true)
     }
@@ -157,7 +176,6 @@ const Forum = () => {
         }
         const user_data = JSON.parse(localStorage.getItem('user') as string)
         const voted: VoteReturn = await VoteAPI(post_id, vote_type, vote, user_data['_id']) as VoteReturn
-        console.log(voted)
         if (vote_type === 'post') {
             const update_posts = forumList.map((p) => {
                 console.log(post_id, p._id)
@@ -183,8 +201,21 @@ const Forum = () => {
         })
         setForumList(list)
     }
+
+    const checkSub = () => {
+        if (profile.channel_subs){
+            const subbed = profile.channel_subs.map(s => {return s.slug})
+            setIsSubscribed(subbed.includes(channel as string))
+        }
+    }
+
+    const subToggle = async () => {
+        if (!channel || !profile._id) return
+        const profile_update = await toggleChannelSubscription(channel, profile?._id)
+        dispatch(set_profile(profile_update))
+    }
+
     if (forumList.length <= 0 && !initForumCall) {
-        console.log(channel, post_id)
         getInitPosts()
     }
 
@@ -207,7 +238,14 @@ const Forum = () => {
                 <Fab size='small' 
                     variant='extended'
                     color='info'
-                    sx={{maxWidth: '200px', position: 'absolute', top: '120px', right: '20px'}}>Subscribe</Fab>
+                    onClick={() => {subToggle()}}
+                    sx={{
+                        maxWidth: '200px', 
+                        position: 'absolute', 
+                        top: '120px', 
+                        right: '20px',
+                        opacity: isSubscribed ? '0.5' : '1'
+                    }}>{isSubscribed ? 'Subscribed' : 'Subscribe'}</Fab>
             }
             {is_logged_in &&
             <SlotModal
@@ -228,7 +266,7 @@ const Forum = () => {
                 ></SlotModal>}
             {forumList.length === 0 && <h1>No Posts</h1>}
             <PostList posts={forumList} viewEntry={viewEntry} vote={votePost} />
-            {focusEntry !== null && 
+            {focusEntry && 
                 <Post 
                     entry={focusEntry} 
                     open={viewingEntry}
