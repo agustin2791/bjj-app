@@ -1,5 +1,5 @@
 import { useState, FC, useEffect } from 'react'
-import { Card, Modal, Stack, ListItem, Button, ButtonGroup, Box } from '@mui/material'
+import { Card, Modal, Stack, ListItem, Button, ButtonGroup, Box, Chip } from '@mui/material'
 import { ForumEntry, Comment } from "../../utils/types_interfaces";
 import CommentReply from './comment';
 import ReplyForm from './replyForm';
@@ -7,6 +7,7 @@ import { VoteAPI, newComment } from '../../utils/forum-utils';
 import { ThumbDown, ThumbUp } from '@mui/icons-material';
 import { load as yt_loader } from 'youtube-iframe';
 import { Link } from 'react-router-dom';
+import PostImages from '../../components/forum/postImages';
 
 const YouTubeIframeLoader = require('youtube-iframe')
 // const tag = document.createElement('script')
@@ -26,8 +27,13 @@ const Post: FC<PostProps> = ({ entry, open, logged_in, closeModal, updateVote })
     const [replyComments, setComments] = useState<Comment[]>(entry.replies)
 
     useEffect(function () {
-        
-    }, [entry])
+        if (entry.replies) {
+            console.log('entries', entry.replies)
+            setComments(entry.replies)
+        } else {
+            setComments([])
+        }
+    }, [open])
 
     const toggleReplyForm = () => {
         setToggleReply(!toggleReply)
@@ -65,9 +71,7 @@ const Post: FC<PostProps> = ({ entry, open, logged_in, closeModal, updateVote })
 
     
 
-    if (entry.replies.length > replyComments.length) {
-        setComments(entry.replies)
-    }
+    
     return (
         <Modal open={open}
             onClose={() => {closeModal()}}>
@@ -76,9 +80,12 @@ const Post: FC<PostProps> = ({ entry, open, logged_in, closeModal, updateVote })
                     <ListItem>
                         <div className="post-title">{entry.title}</div>
                         <div className="post-author">
+                            channel: <Link to={`/posts/${typeof entry.channel === 'string' ? entry.channel : entry.channel.slug}`}>{typeof entry.channel === 'string' ? entry.channel : entry.channel.category} </Link> 
+                            
                             user: <Link to={`/profile/${entry.author?.username}`}>{typeof entry.author === 'string' ? entry.author : entry.author?.username}</Link>
                         </div>
                     </ListItem>
+                    {entry.images && entry.images.length > 0 && <ListItem><Box sx={{margin: '10px auto'}}><PostImages images={entry.images} /></Box></ListItem>}
                     {entry.embedded && entry.embedded_type === 'video' &&
                     <ListItem>
                         <Box sx={{margin: '10px auto'}} id="youtube_player">
@@ -104,6 +111,9 @@ const Post: FC<PostProps> = ({ entry, open, logged_in, closeModal, updateVote })
                     <ListItem>
                         <div className="post-description">{entry.description}</div>
                     </ListItem>
+                    {entry.nsfw && <ListItem>
+                        <Chip variant='outlined' color='error' label='NSFW' />
+                    </ListItem>}
                     <div className="comment-section">
                         <ButtonGroup variant='outlined' size='small'>
                             <Button 
@@ -112,14 +122,14 @@ const Post: FC<PostProps> = ({ entry, open, logged_in, closeModal, updateVote })
                                 startIcon={<ThumbUp />} 
                                 endIcon={<>{entry.agree}</>}
                                 onClick={() => {votePost('post', 'agree')}}
-                                >Agree</Button>
+                                ></Button>
                             <Button 
                                 variant='outlined' 
                                 color="error" 
                                 startIcon={<ThumbDown />} 
                                 endIcon={<>{entry.disagree}</>}
                                 onClick={() => {votePost('post', 'disagree')}}
-                                >Disagree</Button>
+                                ></Button>
                         </ButtonGroup>
                         <br />{logged_in &&
                         <>

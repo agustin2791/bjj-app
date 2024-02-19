@@ -12,11 +12,13 @@ type IPost = {
     disagree: number,
     created_at: Date,
     channel: IChannel,
+    images: [string],
     user_agree?: number,
     user_disagree?: number,
     embedded: boolean,
     embedded_type: string,
-    embedded_link: string
+    embedded_link: string,
+    nsfw: boolean
 }
 
 
@@ -38,6 +40,7 @@ const PostSchema = new mongoose.Schema<IPost>({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Comment'
     }],
+    images: [String],
     agree: Number,
     disagree: Number,
     created_at: {
@@ -51,7 +54,8 @@ const PostSchema = new mongoose.Schema<IPost>({
     },
     embedded: Boolean,
     embedded_type: String,
-    embedded_link: String
+    embedded_link: String,
+    nsfw: {type: Boolean, default: false}
 })
 
 

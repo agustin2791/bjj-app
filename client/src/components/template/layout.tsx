@@ -1,7 +1,7 @@
 import { Outlet, Route, Routes, useLocation, useNavigate, useParams } from "react-router-dom"
 import Navigation from "./navigation"
 import { Box, AppBar, Toolbar, IconButton, Drawer, Button, Avatar, Menu, MenuItem } from "@mui/material";
-import { Menu as MenuIcon } from '@mui/icons-material'
+import { AccountCircle, Menu as MenuIcon } from '@mui/icons-material'
 import TopBar from "./topBar";
 import { useEffect, useState, MouseEvent } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -53,8 +53,11 @@ const MainLayout = () => {
                     <TopBar />
                     {logged_id && 
                     <>
-                        <Button onClick={handleProfileClick} color='navBtn'>
-                            <Avatar sx={{margin: '0 5px'}}><ProfilePicture image={profile?.image} username={user?.username} /></Avatar>
+                        <Button onClick={handleProfileClick} color='navBtn'> 
+                                <Avatar sx={{margin: '0 5px', bgcolor: '#333'}} src={profile?.image ? profile.image : ''}>
+                                    {!profile?.image && <AccountCircle />}
+                                </Avatar>
+                                
                             {user?.username}
                         </Button>
                         <Menu anchorEl={profileMenuAnchor}

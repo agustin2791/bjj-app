@@ -1,22 +1,34 @@
 import { Fab, Grid, Paper, Typography } from "@mui/material"
 import { useEffect, useState } from "react"
-import { useParams } from "react-router-dom"
-import { Comment, ForumEntry, Profile } from "../../utils/types_interfaces"
+import { useNavigate, useParams } from "react-router-dom"
+import { Comment, ForumEntry, Profile, User } from "../../utils/types_interfaces"
 import { getProfile } from "../../utils/profile-utils"
 import ProfilePicture from "../../components/profile/picture"
 import { getUserPosts } from "../../utils/forum-utils"
 import UserPostList from "../../components/profile/userPostList"
+import { Edit } from "@mui/icons-material"
+import { useSelector } from "react-redux"
+import { RootState } from "../../store"
 
 interface postsOutput {
     posts: ForumEntry[],
     comments: Comment[]
 }
 
+const fabStyle = {
+    position: 'absolute',
+    bottom: 16,
+    right: 16,
+};
+
 const UserProfile = () => {
     const { slug } = useParams()
+    const navigate = useNavigate()
     const [profile, setProfile] = useState<Profile>()
     const [userPosts, setUserPosts] = useState<ForumEntry[]>([])
     const [userComments, setUserComments] = useState<Comment[]>([])
+    const [extendEditBtn, setExtendEditBtn] = useState(false)
+    const user = useSelector((state: RootState) => state.auth.user) as User
 
     useEffect(function () {
         pullProfileData()
@@ -30,8 +42,20 @@ const UserProfile = () => {
         setUserComments(comments)
     }
 
+    const goToEditPage = () => {
+        return navigate('/profile/edit/' + slug)
+    }
+
     return (<>
-    <Fab></Fab>
+    {user.username === slug && <Fab size='medium'
+        sx={fabStyle}
+        color='primary'
+        onClick={goToEditPage}
+        onMouseOver={() => {setExtendEditBtn(true)}}
+        onMouseLeave={() => {setExtendEditBtn(false)}}
+        variant={extendEditBtn ? 'extended' : 'circular'}>
+            <Edit /> {extendEditBtn ? 'Edit Profile' : ''}
+        </Fab>}
     <Grid container sx={{width: '80%', margin: '5px auto'}} spacing={2}>
         <Grid item sm={12}>
             <Paper sx={{padding: '20px'}}>
@@ -43,6 +67,8 @@ const UserProfile = () => {
                         <Typography variant="h4">{profile?.name}</Typography>
                         <Typography variant="body1">{profile?.user.username}</Typography>
                         <Typography variant="body1">{profile?.belt_rank}</Typography>
+                        <Typography variant="body1">{profile?.affiliation}</Typography>
+                        <Typography variant="body1">{profile?.location}</Typography>
                     </Grid>
                 </Grid>
             </Paper>

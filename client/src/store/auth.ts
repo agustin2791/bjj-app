@@ -34,6 +34,7 @@ const authReducer = createSlice({
         },
         logout: (state) => {
             state.user = initialState.user
+            state.profile = initialState.profile
             state.is_logged_in = initialState.is_logged_in
             state.last_login = initialState.last_login
             localStorage.clear()

@@ -27,13 +27,15 @@ export interface ForumEntry {
     description: string,
     author?: User,
     replies: Comment[],
+    images?: string[],
     agree: number,
     disagree: number,
     created_at: Date,
     channel: string | Channel,
     embedded?: boolean,
     embedded_type?: string,
-    embedded_link?: string
+    embedded_link?: string,
+    nsfw: boolean
 }
 
 export interface ForumEntryBus {
@@ -46,7 +48,10 @@ export interface ForumEntryBus {
     channel: string,
     embedded?: boolean,
     embedded_type?: string,
-    embedded_link?: string
+    embedded_link?: string,
+    images?: string[],
+    has_images?: boolean,
+    nsfw: boolean
 }
 
 export interface Comment {

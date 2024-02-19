@@ -11,8 +11,9 @@ type nav_links = {
 const links: nav_links[] = [
     {label: 'Posts', path: '/', contains: 'post'},
     {label: 'Academies', path: '/academy', contains: 'academy'},
-    {label: 'Tournaments', path: '/tournaments', contains: 'tournaments'},
-    {label: 'Events', path: '/events', contains: 'events'}
+    {label: 'About', path: '/about', contains: 'about'}
+    // {label: 'Tournaments', path: '/tournaments', contains: 'tournaments'},
+    // {label: 'Events', path: '/events', contains: 'events'}
 ]
 
 const TopBar = () => {

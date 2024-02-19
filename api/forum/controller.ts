@@ -4,7 +4,12 @@ import type { IPost, IComment } from "./schema"
 import { Post, Comment, Channel, Vote } from "./schema"
 import { Schema, Types } from "mongoose";
 import { User } from "../auth/schema";
+import { AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY } from "../../secrets";
+import multer from "multer";
+import path from "path";
 const app:Express = express()
+const storage = multer.memoryStorage()
+const upload = multer({storage: storage})
 
 const convertObjectID = (user_id: string) => {
     return new Types.ObjectId(user_id)
@@ -29,6 +34,8 @@ module.exports = app.post('/posts', async (req: Request, res: Response) => {
         }
         let all_post_query = await query.find()
             .populate('author')
+            .populate('channel')
+            .populate({path: 'replies', populate: {path: 'replies', populate: 'author'}})
             .populate({path: 'replies', populate: {path: 'author'}})
             .skip(start)
             .limit(end)
@@ -85,9 +92,11 @@ module.exports = app.post('/new_post', async (req: Request, res: Response) => {
         get_channel = await Channel.findOne({slug: post['channel']})
     }
     post['channel'] = get_channel?._id
-    const new_post = new Post(post)
+    let new_post = new Post(post)
     await new_post.save()
-    new_post.populate('author')
+    new_post = await new_post.populate('author')
+    new_post = await new_post.populate('channel')
+    
     res.status(200).json(new_post)
 })
 
@@ -121,19 +130,19 @@ module.exports = app.post('/new_reply', async (req: Request, res: Response) => {
     try {
         const comment: IComment = req.body
         console.log(comment)
-        const new_comment = new Comment(comment)
-        new_comment.save()
+        let new_comment = new Comment(comment)
+        await new_comment.save()
 
         if (comment?.post_id) {
             const update_post = await Post.findOne({_id: comment.post_id})
             update_post?.replies.push(new_comment)
-            update_post?.save()
+            await update_post?.save()
         } else {
             const update_post = await Comment.findOne({_id: comment?.comment_to_id})
             update_post?.replies.push(new_comment)
-            update_post?.save()
+            await update_post?.save()
         }
-
+        new_comment = await new_comment.populate('author')
         return res.status(200).json(new_comment)
     } catch (e) {
         console.log(e)
@@ -167,6 +176,12 @@ module.exports = app.post('/channels', async (req: Request, res: Response) => {
     await connect()
     const all_channels = Channel.find().sort('channel')
     return res.status(200).json(all_channels)
+})
+
+module.exports = app.post('/get_default_channels', async (req: Request, res: Response) => {
+    await connect()
+    const channels = await Channel.find({top: true})
+    return res.status(200).json(channels)
 })
 
 interface ChannelInput {
@@ -283,4 +298,47 @@ module.exports = app.post('/vote', async (req: Request, res: Response) => {
         }
     }
     return res.status(200).json(change)
+})
+
+module.exports = app.post('/upload_images', upload.array('images', 10), async (req: Request, res: Response) => {
+    await connect()
+    const AWS = require('aws-sdk')
+    try {
+        
+        if (!req.files) {
+            return res.status(404).json({'error': true, 'message': 'Nothing uploaded'})
+        }
+        console.log('trying to get files', req.files)
+        AWS.config.update({
+            region: 'us-east-2',
+            accessKeyId: AWS_ACCESS_KEY_ID,
+            secretAccessKey: AWS_SECRET_ACCESS_KEY
+        })
+        const s3 = new AWS.S3()
+        const images = req.files as Express.Multer.File[]
+        const username = req.body.username
+        const channel = req.body.channel
+
+        const uploadPromise = images.map(async (file) => {
+            const params = {
+                Bucket: 'bjj-app',
+                Key: `profile/${username}/post/${channel}/${path.basename(file.originalname)}`,
+                Body: file.buffer,
+                ACL: 'public-read'
+            }
+            try {
+                const data = await s3.upload(params).promise()
+                return data.Location
+            } catch (err) {
+                console.log('error', err)
+                return
+            }
+        });
+        const uploadResults = await Promise.all(uploadPromise)
+        console.log('upload results', uploadResults)
+        return res.status(200).json(uploadResults)
+    } catch (e) {
+        console.log(e)
+        return res.status(404).json({'error': true, 'message': 'Nothing uploaded'})
+    }
 })

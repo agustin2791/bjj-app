@@ -39,7 +39,19 @@ export const newPost = async <T>(post: ForumEntryBus) : Promise<T> => {
 
     return data
 }
+export const uploadPostImages = async <T>(formdata: FormData): Promise<T> => {
+    const upload = api.post('/forum/upload_images', formdata, {
+        headers: {
+            'Content-Type': 'multipart/form-data'
+        }
+    })
+        .then((res) => {
+            return res.data
+        })
+        .catch((err) => console.error(err))
 
+    return upload
+}
 export const editDeletePost = async <T>(
     type: string,
     post_id: number,
@@ -102,6 +114,14 @@ export const VoteAPI = async <T>(
         console.log(e)
         return []
     })
+    return data
+}
+
+export const GetDefaultChannels = async <T>(): Promise<T> => {
+    const data = await api.post('/forum/get_default_channels', {})
+        .then((res) => {return res.data})
+        .catch(err => console.log(err))
+    
     return data
 }
 

@@ -7,6 +7,7 @@ import { RootState } from "../../store";
 import { logout } from "../../store/auth";
 import NewChannelForm from "../../pages/forum/newChannelForm";
 import { Channel } from "../../utils/types_interfaces";
+import { GetDefaultChannels } from "../../utils/forum-utils";
 
 const navigation_links = [
     {
@@ -45,6 +46,7 @@ const Navigation = () => {
     const [viewDrawer, setViewDrawer] = useState(true)
     const [newChannel, setNewChannel] = useState(false)
     const [sortedChannels, setSortedChannels] = useState<Channel[]>()
+    const [defaultChannels, setDefaultChannels] = useState<Channel[]>()
     const navigate = useNavigate()
     const dispatch = useDispatch()
     const is_logged_in:boolean = useSelector((state: RootState) => state.auth.is_logged_in)
@@ -59,6 +61,8 @@ const Navigation = () => {
                 return 0
             })
             setSortedChannels(sorted)
+        } else {
+            getDefaultChannel()
         }
     }, [profile])
 
@@ -66,7 +70,15 @@ const Navigation = () => {
         setNewChannel(!newChannel)
     }
     
-    
+    const getDefaultChannel = async () => {
+        let channels = await GetDefaultChannels() as Channel[]
+        let sorted = channels.sort((a, b) => {
+            if (a.category > b.category) return 1
+            if (a.category < b.category) return -1
+            return 0
+        })
+        setSortedChannels(sorted)
+    }
     
     return (
         <Box className="box-item left-drawer">

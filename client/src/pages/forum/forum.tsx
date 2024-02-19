@@ -1,7 +1,7 @@
 import { useState, ChangeEvent, FormEvent, useEffect } from 'react';
 import { Stack, Button, Modal, Box, Fab} from '@mui/material'
 import NewPost from './newPostForm';
-import { newPost as postApi, getAllPosts, VoteAPI, toggleChannelSubscription, getPostById } from '../../utils/forum-utils';
+import { newPost as postApi, getAllPosts, VoteAPI, toggleChannelSubscription, getPostById, uploadPostImages } from '../../utils/forum-utils';
 import { ForumEntry, ForumEntryBus, Comment, User, Profile } from '../../utils/types_interfaces';
 import PostList from './postList';
 import Post from './post';
@@ -13,7 +13,20 @@ import { Add } from '@mui/icons-material';
 import { set_profile } from '../../store/auth';
 
 
-const defaultPostForm = {
+interface defaultPostInterface {
+    title: string,
+    author: string,
+    description: string,
+    channel: string,
+    channel_id: string,
+    embedded: boolean,
+    embedded_type: string,
+    embedded_link: string,
+    has_images: boolean,
+    images?: File[],
+    nsfw: boolean
+}
+const defaultPostForm: defaultPostInterface = {
     title: '',
     author: '',
     description: '',
@@ -21,7 +34,9 @@ const defaultPostForm = {
     channel_id: '',
     embedded: false,
     embedded_type: 'link',
-    embedded_link: ''
+    embedded_link: '',
+    has_images: false,
+    nsfw: false
 }
 
 
@@ -38,7 +53,8 @@ const blankEntry = (): ForumEntry => {
         embedded: false,
         embedded_type: '',
         embedded_link: '',
-        created_at: new Date()
+        created_at: new Date(),
+        nsfw: false
     }
 }
 
@@ -76,6 +92,8 @@ const Forum = () => {
     const [initForumCall, setInitForumCall] = useState(false)
     const [extendAddBtn, setExtendAddBtn] = useState(false)
     const [isSubscribed, setIsSubscribed] = useState(false)
+    const [currentPagination, setCurrentPagination] = useState(0)
+    const [hasMorePosts, setHasMorePosts] = useState(true)
     const user = useSelector((state: RootState) => state.auth.user) as User
     const profile = useSelector((state: RootState) => state.auth.profile) as Profile
     const is_logged_in: boolean = useSelector((state: RootState) => state.auth.is_logged_in)
@@ -96,7 +114,7 @@ const Forum = () => {
     
     const getInitPosts = async () => {
 
-        let allPosts:ForumEntry[] = await getAllPosts(channel, post_id, 0, 10)
+        let allPosts:ForumEntry[] = await getAllPosts(channel, post_id, currentPagination, 10)
         checkSub()
 
         setForumList(allPosts)
@@ -131,9 +149,29 @@ const Forum = () => {
             agree: 0,
             disagree: 0,
             replies: reply_comments,
-            channel: channel ? channel : newPost.channel_id
+            channel: channel ? channel : newPost.channel_id,
+            nsfw: newPost.nsfw
         }
-
+        let image_urls = []
+        if (newPost.has_images) {
+            // new_post.images = (newPost.images ? newPost.images : undefined)
+            const images_upload = (newPost.images ? newPost.images : undefined) as File[]
+            console.log(images_upload)
+            if (images_upload) {
+                let upload_params = new FormData()
+                images_upload.forEach((i, idx) => {
+                    upload_params.append('images', i)
+                })
+                // upload_params.append('images[]', images_upload as Blob)
+                upload_params.append('username', user?.username as string)
+                upload_params.append('channel', new_post.channel as string)
+                image_urls = await uploadPostImages(upload_params) as string[]
+                new_post.images = image_urls
+            } else {
+                console.log('nothing to upload')
+            }
+            // send to upload images 
+        }
         if (newPost.embedded) {
             new_post.embedded = newPost.embedded
             new_post.embedded_type = newPost.embedded_type
@@ -148,8 +186,23 @@ const Forum = () => {
 
     const updatePostForm = (event: ChangeEvent<HTMLInputElement>) => {
         const {name, value} = event.target
-        
-        setNewPost({...newPost, [name]: name === 'embedded' ? value === 'true' : value})
+        console.log('name of field', name, value)
+        if (name === 'images' && event.target.files) {
+            console.log(event.target.files)
+            if (!event.target.files[0].type.includes('image')) return
+            const file_to_upload = event.target.files[0]
+            const image_list = (newPost.images ? [...newPost?.images as File[], file_to_upload] : [file_to_upload]) as File[]
+            setNewPost({...newPost, images: image_list})
+        } else {
+            const bool_names = ['embedded', 'has_images']
+            setNewPost({...newPost, [name]: bool_names.includes(name) ? value === 'true' : value})
+        }
+    }
+
+    const removeImagePostForm = (image_index: number) => {
+        if (!newPost.images) return
+        const update_images = newPost?.images.filter((i, index) => index !== image_index)
+        setNewPost({...newPost, images: update_images})
     }
     
     const viewEntry = (entry_id: string) => {
@@ -162,6 +215,7 @@ const Forum = () => {
 
     const toggleViewingEntry = () => {
         setViewingEntry(!viewingEntry)
+        setFocusEntry(blankEntry)
     }
 
     const toggleNewEntryPost = () => {
@@ -221,7 +275,7 @@ const Forum = () => {
 
     return (
         <Stack sx={{margin: '20px auto', maxWidth: '80%'}}>
-            <h2>Welcome {user.username ? user.username : ''}</h2>
+            <h2>Welcome {channel ? 'to ' + channel : user.username ? user.username : ''}</h2>
             {is_logged_in && 
                 <Fab sx={fabStyle} 
                     className="create-post-button" 
@@ -261,8 +315,12 @@ const Forum = () => {
                     embedded_type={newPost.embedded_type}
                     embedded_link={newPost.embedded_link}
                     has_channel={channel !== undefined}
+                    has_images={newPost.has_images}
+                    images={newPost.images ? newPost.images : []}
                     handleInputChange={updatePostForm}
-                    submitPost={postNewForumEntry}  />}
+                    removeImage={removeImagePostForm}
+                    submitPost={postNewForumEntry}
+                    nsfw={newPost.nsfw ? newPost.nsfw : false}  />}
                 ></SlotModal>}
             {forumList.length === 0 && <h1>No Posts</h1>}
             <PostList posts={forumList} viewEntry={viewEntry} vote={votePost} />

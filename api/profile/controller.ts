@@ -1,6 +1,6 @@
 import { connect } from "../../mongodb";
 import express, { Express, Request, Response} from 'express'
-import { Profile } from "./schema";
+import { BeltRank, Profile } from "./schema";
 import { IUser, User } from "../auth/schema";
 import { AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY } from "../../secrets";
 import multer from 'multer';
@@ -27,12 +27,13 @@ module.exports = app.post('/get_profile', async (req: Request, res: Response) =>
             return res.status(200).json(profile)
         } else {
             // const user = await User.findOne({user: {username}})
-            const new_profile = new Profile({
+            const channels = await Channel.find({top: true})
+            let new_profile = new Profile({
                 name: username,
-                user: user
+                user: user,
+                channel_subs: channels
             })
-            await new_profile.save()
-            await new_profile.populate('channel_subs', 'academy_subs')
+            await new_profile.populate('channel_subs')
             return res.status(200).json(new_profile)
         }
     } catch (e) {
@@ -99,7 +100,6 @@ module.exports = app.post('/update_image', upload.single('image'), async (req: R
         const s3 = new AWS.S3();
         console.log(req.body)
         const image = req.file
-        console.log('image:', image)
         const username = req.body.username
         const params = {
             Bucket: 'bjj-app',
@@ -122,5 +122,19 @@ module.exports = app.post('/update_image', upload.single('image'), async (req: R
     } catch (e) {
         console.log(e)
         return res.status(404).json({"error": true, "message": "nothing was updated"})
+    }
+})
+
+module.exports = app.post('/get_belt_ranks', async (req: Request, res: Response) => {
+    await connect()
+    try {
+        const belts = await BeltRank.find({})
+        if (belts) {
+            return res.status(200).json(belts)
+        } else {
+            return res.status(404).json({'error': true, 'message': 'No Belts found'})
+        }
+    } catch (err) {
+        return res.status(404).json({'error': true, 'message': 'No Belts found'})
     }
 })

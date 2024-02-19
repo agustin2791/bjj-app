@@ -1,0 +1,8 @@
+[
+    {"category": "News", "slug": "news", "top": true},
+    {"category": "Events", "slug": "events", "top": true},
+    {"category": "Memes", "slug": "memes", "top": true},
+    {"category": "Videos", "slug": "videos", "top": true},
+    {"category": "Funny", "slug": "funny", "top": true},
+    {"category": "Images", "slug": "images", "top": true}
+]

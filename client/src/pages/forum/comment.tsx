@@ -6,6 +6,7 @@ import { VoteAPI, newComment } from '../../utils/forum-utils'
 import { ThumbDown, ThumbUp } from '@mui/icons-material'
 import { useSelector } from 'react-redux'
 import { RootState } from '../../store'
+import { Link } from 'react-router-dom'
 
 // type CommentStruct  Comment {
 
@@ -35,7 +36,6 @@ const CommentReply: FC<Comment> = ({
 
     // METHODS
     const toggleReplyForm = () => {
-        console.log(toggleReply)
         setToggleReply(toggleReply ? false : true)
     }
 
@@ -64,7 +64,7 @@ const CommentReply: FC<Comment> = ({
         <div className="comment-container">
             <div className="comment">{comment}</div>
             <div className="comment-details">
-                <div className="comment-author">{typeof author === 'object' ? author.username : author.toString()}</div>
+                <div className="comment-author">{typeof author === 'object' ? <Link to={`/profile/${author.username}`}>{author.username}</Link> : author.toString()}</div>
                 <ButtonGroup variant='outlined' size='small'>
                     <Button 
                         variant='outlined' 
@@ -72,16 +72,17 @@ const CommentReply: FC<Comment> = ({
                         startIcon={<ThumbUp />} 
                         endIcon={<>{commentAgree}</>}
                         onClick={() => {votePost(_id.toString(), 'comment', 'agree')}}
-                        >Agree</Button>
+                        ></Button>
                     <Button 
                         variant='outlined' 
                         color="error" 
                         startIcon={<ThumbDown />} 
                         endIcon={<>{commentDisagree}</>}
                         onClick={() => {votePost(_id.toString(), 'comment', 'disagree')}}
-                        >Disagree</Button>
+                        ></Button>
+                    {is_logged_in && <Button variant="contained" size='small' onClick={() => toggleReplyForm()}>Reply</Button>}
                 </ButtonGroup>
-                {/* <Button variant="contained" onClick={() => toggleReplyForm()}>Reply dsdf</Button> */}
+                
             </div>
             {toggleReply}
             {toggleReply && <ReplyForm reply_to_id={_id ? _id : ''} submitReply={addReply} focus='comment' /> }
