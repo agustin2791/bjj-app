@@ -113,8 +113,8 @@ const Forum = () => {
     }, [forumList])
     
     const getInitPosts = async () => {
-
-        let allPosts:ForumEntry[] = await getAllPosts(channel, post_id, currentPagination, 10)
+        const allow_nsfw = Object.keys(profile).includes('is_adult') ? profile.is_adult : false
+        let allPosts:ForumEntry[] = await getAllPosts(channel, post_id, currentPagination, 10, allow_nsfw ? allow_nsfw : false)
         checkSub()
 
         setForumList(allPosts)

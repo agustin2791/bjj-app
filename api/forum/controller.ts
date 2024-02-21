@@ -18,7 +18,7 @@ const convertObjectID = (user_id: string) => {
 // POSTS API =========================
 module.exports = app.post('/posts', async (req: Request, res: Response) => {
     await connect()
-    const {channel, post_id, start, end} = req.body
+    const {channel, post_id, start, end, allow_nsfw} = req.body
     try {
         let query
         if (channel) {
@@ -32,6 +32,8 @@ module.exports = app.post('/posts', async (req: Request, res: Response) => {
         } else {
             query = Post.where({})
         }
+        console.log('allowing nsfw', allow_nsfw)
+        query.where({'nsfw': {'$in': [false, allow_nsfw, null]}})
         let all_post_query = await query.find()
             .populate('author')
             .populate('channel')

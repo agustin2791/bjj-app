@@ -13,12 +13,13 @@ export interface Profile {
     name: string,
     image?: any,
     user: User,
-    belt_rank?: string,
+    belt_rank?: BeltRank,
     affiliation?: string,
     academy?: Academy,
     location?: string,
     academy_subs?: Academy[],
-    channel_subs?: Channel[]
+    channel_subs?: Channel[],
+    is_adult?: boolean
 }
 
 export interface ForumEntry {
@@ -134,4 +135,10 @@ export interface AcademyInstructor {
     belt_rank: string,
     classes: AcademyClass[],
     user?: User
+}
+
+export interface BeltRank {
+    _id: string,
+    color: string,
+    stripes: number
 }

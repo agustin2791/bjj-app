@@ -6,9 +6,10 @@ export const getAllPosts = async <T>(
     channel: string | undefined,
     post_id: string | undefined,
     start: number,
-    end: number
+    end: number,
+    allow_nsfw: boolean
 ) : Promise<T> => {
-    const data = await api.post('/forum/posts ', {channel, post_id, start, end})
+    const data = await api.post('/forum/posts ', {channel, post_id, start, end, allow_nsfw})
         .then((res) => {
             return res.data
         }).catch((e) => {

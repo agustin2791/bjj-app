@@ -15,7 +15,8 @@ interface IProfile {
     academy_subs: [IAcademy],
     channel_subs: [string],
     belt_verified: boolean,
-    academy_verified: boolean
+    academy_verified: boolean,
+    is_adult: boolean
 }
 
 type ProfileModel = Model<IProfile, {}, {}>
@@ -48,7 +49,8 @@ const profileSchema = new Schema<IProfile>({
         {type: Schema.Types.ObjectId, ref: 'Channel'}
     ],
     belt_verified: {type: Boolean, default: false},
-    academy_verified: {type: Boolean, default: false}
+    academy_verified: {type: Boolean, default: false},
+    is_adult: {type: Boolean, default: false}
 })
 
 export const Profile = mongoose.model<IProfile>('Profile', profileSchema)

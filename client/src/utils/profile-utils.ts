@@ -33,3 +33,11 @@ export const updateProfileImage = async <T>(formdata: FormData): Promise<T> => {
         .catch((err) => console.log(err))
     return upload
 }
+
+export const getProfileAvailableBelts = async <T>(): Promise<T> => {
+    const belts = api.post('/profile/get_belt_ranks', {})
+        .then((res) => {return res.data})
+        .catch((err) => console.log(err))
+
+    return belts
+}

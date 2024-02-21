@@ -66,7 +66,7 @@ const UserProfile = () => {
                     <Grid item sm={9}>
                         <Typography variant="h4">{profile?.name}</Typography>
                         <Typography variant="body1">{profile?.user.username}</Typography>
-                        <Typography variant="body1">{profile?.belt_rank}</Typography>
+                        <Typography variant="body1">{profile?.belt_rank?.color}</Typography>
                         <Typography variant="body1">{profile?.affiliation}</Typography>
                         <Typography variant="body1">{profile?.location}</Typography>
                     </Grid>
