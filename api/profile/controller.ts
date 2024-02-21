@@ -33,7 +33,10 @@ module.exports = app.post('/get_profile', async (req: Request, res: Response) =>
                 user: user,
                 channel_subs: channels
             })
+            await new_profile.save()
             await new_profile.populate('channel_subs')
+            
+            console.log('created a new profile', new_profile)
             return res.status(200).json(new_profile)
         }
     } catch (e) {
