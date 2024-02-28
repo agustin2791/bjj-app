@@ -6,7 +6,10 @@ COPY package*.json ./
 RUN npm install
 
 COPY dist/ ./
+ENV PORT=8000
 
 EXPOSE 8000
+EXPOSE 443
+EXPOSE 80
 
 CMD ["node", "index.js"]

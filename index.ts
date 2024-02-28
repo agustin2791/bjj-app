@@ -17,7 +17,13 @@ dotenv.config();
 const app: Express = express();
 
 app.use(express.json());
-app.use(cors());
+
+let corsOptions = {
+  origin: ['http://localhost:3000', 'https://www.floandroll.com', 'https://flowandroll.com'],
+  methods: ['GET', 'POST', 'HEAD', 'PUT', 'DELETE', 'PATCH'],
+  optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204
+}
+app.use(cors(corsOptions));
 
 
 const port = process.env.PORT || 8000;
