@@ -2,7 +2,7 @@ import { MONGO_PADD_DEV, MONGO_PASS } from "./secrets"
 
 const mon = require('mongoose')
 
-const conn = 'prod'
+const conn = 'local'
 const conn_translation = {
     local: 'mongodb://localhost/bjjdb',
     prod: `mongodb+srv://ahgoosesoftware:${MONGO_PASS}@bjjclustor.9dbddaq.mongodb.net/?retryWrites=true&w=majority&appName=BJJClustor`,

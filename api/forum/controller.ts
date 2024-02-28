@@ -21,28 +21,30 @@ module.exports = app.post('/posts', async (req: Request, res: Response) => {
     const {channel, post_id, start, end, allow_nsfw} = req.body
     try {
         let query
+        let total_docs
         if (channel) {
             const get_channel = await Channel.findOne({slug: channel})
             if (get_channel) {
                 query = Post.where({channel: get_channel})
+                total_docs = await Post.where({channel: get_channel}).countDocuments()
             } else {
                 return res.status(404).json({'message': 'Channel does not exist'})
             }
             
         } else {
             query = Post.where({})
+            total_docs = await Post.where({}).countDocuments()
         }
-        console.log('allowing nsfw', allow_nsfw)
         query.where({'nsfw': {'$in': [false, allow_nsfw, null]}})
         let all_post_query = await query.find()
             .populate('author')
             .populate('channel')
             .populate({path: 'replies', populate: {path: 'replies', populate: 'author'}})
             .populate({path: 'replies', populate: {path: 'author'}})
-            .skip(start)
+            .skip(start * 10)
             .limit(end)
             .sort('-created_at')
-        return res.status(200).send(all_post_query)
+        return res.status(200).send({docs: all_post_query, total_docs})
     } catch (e) {
         console.log(e)
         return res.status(404).send('No Post found')
