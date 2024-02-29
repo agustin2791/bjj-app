@@ -2,10 +2,11 @@ import axios from "axios";
 import express, { Express, Request, Response } from "express";
 import { connect } from "../mongodb";
 import { Academy } from "./academy/schema";
+import { GOOGLE_MAP_API } from "../secrets";
 
 const app: Express = express()
 // const GOOGLE_MAP_API = 'AIzaSyArng3Dcnpy2bc086qO1FY2cIN-N_rWfwQ'
-const GOOGLE_MAP_API = process.env.MAPAPI
+// const GOOGLE_MAP_API = process.env.MAPAPI
 type locationSearch = {
     zip?: number,
     address: string,
